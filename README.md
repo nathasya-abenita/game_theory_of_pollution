@@ -9,15 +9,20 @@ Based on my undergraduate thesis titled "Modelling Transboundary Air Pollution i
 ### Network
 - [x] Add countries network scripts
 - [x] Add wind speed data analysis
-- [ ] Refine color palette for network plots
+- Refine plottings for network plots
+    - [ ] Fix color choice
+    - [ ] Plot countries' polygon with boundary lines, instead of filled colors
 
 ### Module and testing
 - [x] Create module for noncooperative static game
 - [x] Create module for noncooperative differential game
 - [x] Create module for imitation differential game
-- [ ] Create module for cooperative differential game
+- Create module for cooperative differential game
     - [x] Use joint optimization with `minimize` from SciPy
     - [ ] Use block coordinate descent with `minimize` from SciPy
+- Create module for plottings
+    - [x] Plot line time series for state and decision variables for each country
+    - [ ] Plot spatial color map of network's pollution stock evolution
 
 ### Simulation
 - [ ] Simulate noncooperative game and finalize output

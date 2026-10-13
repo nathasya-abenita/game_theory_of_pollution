@@ -3,9 +3,13 @@ __pycache__/
 
 # Poetry virtual environments
 .venv/
+.vscode
 
 # Output folder
 /output
 
 # PDFs
 *.pdf
+
+# Working directory for manuscript and other docs
+/docs
