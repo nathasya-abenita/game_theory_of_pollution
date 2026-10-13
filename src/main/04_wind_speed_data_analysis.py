@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from main.config import COUNTRY_NAMES, CUSTOM_CMAP
 
 if __name__ == '__main__':
     """
@@ -45,21 +46,9 @@ if __name__ == '__main__':
     # Plotting line chart
     fig, ax = plt.subplots(figsize = (7,4))
 
-    # Define country names
-    country_names = ["Indonesia",
-                    "Vietnam",
-                    "Thailand",
-                    "Malaysia",
-                    "The Philippines",
-                    "Singapore",
-                    "Myanmar",
-                    "Cambodia",
-                    "Laos",
-                    "Brunei"]
-
     # Plot line for each country
     for i in range (n_country):
-        plt.plot(month_list, speed_per_month_array[:, i], label=country_names[i])
+        plt.plot(month_list, speed_per_month_array[:, i], label=COUNTRY_NAMES[i], color=CUSTOM_CMAP[i])
     
     # Decorate plot
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
@@ -68,7 +57,7 @@ if __name__ == '__main__':
     plt.title("Monthly Wind Speed")
     plt.grid()
     plt.tight_layout()
-    plt.savefig('./output/figs/wind_speed_time_series.png')
+    plt.savefig('./output/figs/wind_speed_time_series.png', bbox_inches='tight')
 
     """ 5. Create histogram """
 
@@ -90,7 +79,7 @@ if __name__ == '__main__':
     plt.xlabel("Speed (m/s)")
     plt.xlim(0,8)
     plt.suptitle("Wind Speed Boxplot and Histogram")
-    plt.savefig('./output/figs/wind_speed_boxplot_hist.png')
+    plt.savefig('./output/figs/wind_speed_boxplot_hist.png', bbox_inches='tight')
 
     # Printing box plot values
     print('median:', np.median(speed_per_month_array))

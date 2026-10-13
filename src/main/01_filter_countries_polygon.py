@@ -1,22 +1,20 @@
+import geopandas as gpd
+import matplotlib.pyplot as plt
+from main.config import COUNTRY_NAMES
 if __name__ == '__main__':
-    import geopandas as gpd
-    import matplotlib.pyplot as plt
     
-    # Initialize country names 
-    chosen_countries = ['Indonesia', 'Vietnam', 'Thailand', 'Malaysia', 'Philippines', 'Singapore', 'Myanmar', 'Cambodia', 'Laos', 'Brunei']
-
     # Read raw data of countries polygons
     gdf = gpd.read_file('./data/vector/ne_10m_admin_0_countries.zip')
     
     # Decide filter indexes
-    idxs = gdf['NAME'].isin(chosen_countries)
+    idxs = gdf['NAME'].isin(COUNTRY_NAMES)
 
     # Print filtered data
     print(gdf[idxs])
     gdf_filtered = gdf[idxs].copy()
 
     # Save as a new shapefile
-    gdf_filtered.to_file('./data/vector/countries.shp')
+    # gdf_filtered.to_file('./data/vector/countries.shp')
 
     # Plot map
     fig, ax = plt.subplots()

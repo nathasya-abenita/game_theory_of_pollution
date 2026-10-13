@@ -1,20 +1,17 @@
+import matplotlib.pyplot as plt
+import array_to_latex as a2l
+from modules.countries_network import *
+from main.config import COUNTRY_CODES
+
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    import array_to_latex as a2l
-    from modules.countries_network import *
-
-    """ 1.1 Read countries polygons and set index """
-
-    # Standard indexing
-    country_codes = {'Indonesia' : 0, 'Vietnam' : 1, 'Thailand' : 2, 'Malaysia' : 3, 
-                     'Philippines' : 4, 'Singapore' : 5, 'Myanmar' : 6, 'Cambodia' : 7, 
-                     'Laos' : 8, 'Brunei' : 9}
     
+    """ 1.1 Read countries polygons """
+ 
     # Read and plot
-    gdf_countries = create_gdf_countries(filename="./data/vector/countries.shp", country_codes=country_codes)
+    gdf_countries = create_gdf_countries(filename="./data/vector/countries.shp", country_codes=COUNTRY_CODES)
     gdf_countries.plot(cmap='tab10', column='NAME', legend=True)
     plt.title('preview of countries')
-    plt.savefig('./output/figs/preview_countries.png')
+    plt.savefig('./output/figs/preview_countries.png', bbox_inches='tight')
 
     """ 1.2. Read population count raster data """
 
@@ -31,7 +28,7 @@ if __name__ == '__main__':
     # plt.xlim(-0.2e7, 0.55e7)
     # plt.ylim(-0.2e7, 0.32e7)
     # plt.title("Gridded population count")
-    # plt.savefig('./output/figs/population_preview.png')
+    # plt.savefig('./output/figs/population_preview.png', bbox_inches='tight')
 
     """ 2. Create graph vertices """
 
@@ -47,7 +44,7 @@ if __name__ == '__main__':
     plt.title("Centroids of ASEAN Countries")
     plt.axis("off")
     plt.legend(fontsize = 8)
-    plt.savefig('./output/figs/centroids.png')
+    plt.savefig('./output/figs/centroids.png', bbox_inches='tight')
 
     """ 3.1. Read resampled population count raster data """
 
@@ -109,7 +106,7 @@ if __name__ == '__main__':
         ax.axis("off")
         ax.set_title(time_int_strings[time_int_id], fontsize=10)
     plt.tight_layout()
-    plt.savefig('./output/figs/network.png')
+    plt.savefig('./output/figs/network.png', bbox_inches='tight')
 
     """ 3.4. Save wind vectors values """
     np.save("./output/vars/wind_vector_per_month_list.npy", wind_vector_per_month_list)
@@ -149,5 +146,3 @@ if __name__ == '__main__':
                 print_out=False
             )
             f.write(latex_str + "\n\n")
-
-    
