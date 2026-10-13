@@ -2,6 +2,7 @@ import numpy as np
 import scipy as sp
 from scipy.optimize import minimize_scalar # Function to call Brent algorithm
 from scipy.optimize import minimize # Function to minimize multivariable scalar function
+from scipy.optimize import brentq
 from scipy.optimize import Bounds
 from scipy.special import expit # Sigmoid function
 
@@ -10,13 +11,13 @@ import matplotlib.pyplot as plt
 
 mpl.rcParams.update({
     # --- Figure ---
-    "figure.figsize": (7.2, 3.6),     # full two-column width
+    # "figure.figsize": (4, 12),     # full two-column width
     "figure.dpi": 300,
     "savefig.dpi": 300,
-    "savefig.format": "pdf",
+    # "savefig.format": "pdf",
 
     # --- Fonts ---
-    "font.family": "serif",
+    # "font.family": "serif",
     "font.size": 10,
     "axes.labelsize": 10,
     "legend.fontsize": 9,
@@ -43,7 +44,7 @@ mpl.rcParams.update({
 
 class PollutionGame:
 
-    def __init__ (self, n, beta, psi_list, neigh, lambd, initial_x_list, mu = None):
+    def __init__ (self, n : int, beta : float, psi_list : list, neigh : list, lambd : float, initial_x_list : list, mu : list = None):
         # Save parameters
         self.n = n # number of players
         self.beta = beta
@@ -80,8 +81,12 @@ class PollutionGame:
         return f(u_list[i])
     
     def joint_cost_func_lambda (self, x_list):
-        return lambda u_list : sum([(self.mu[i] * self.cost_func(i, u_list, x_list)) for i in range (self.n)])
+        eps = 1 # adjustable small number
+        return lambda u_list : eps * sum([(self.mu[i] * self.cost_func(i, u_list, x_list)) for i in range (self.n)])
     
+    def joint_cost_func_lambda_player (self, i, u_list, x_list):
+        return lambda u : self.joint_cost_func_lambda(x_list)([u_list[j] if j!=i else u for j in range (self.n)])
+
     def joint_gradient (self, u_list, x_list):
         grad_list = []
         # Iterate over derivative to player i
@@ -100,6 +105,21 @@ class PollutionGame:
     
     def joint_gradient_lambda (self, x_list):
         return lambda u_list : self.joint_gradient(u_list, x_list)
+    
+    def joint_gradient_player (self, i, u_list, x_list):
+        # Sum over each player's cost function being derived to player i
+        grad_sum = 0
+        for j in range (self.n):
+            pol_dynamics = self.x_dot (j, u_list, x_list)
+            if i == j:
+                grad = -2* x_list[i]* self.beta * np.exp(self.beta*pol_dynamics) + self.lambd
+            else:
+                grad = -self.psi[i][j] * x_list[i] * self.beta * np.exp(self.beta*pol_dynamics)
+            grad_sum += self.mu[i]*grad
+        return grad_sum
+
+    def joint_gradient_lambda_player (self, i, u_list, x_list):
+        return lambda u : self.joint_gradient_player(i, [u_list[j] if j!=i else u for j in range (self.n)], x_list)
     
     def solve_best_response (self, i, u_list, x_list = None):
         """ Best response for player i given opponents' decisions analytically """
@@ -200,7 +220,6 @@ class PollutionGame:
         # Finalize new state variables
         return x_list + step_size / 6 * (F1 + 2*F2 + 2*F3 + F4)
         
-    
     def solve_diff_game_noncoop (self, duration, step_size = 0.01):
         # Compute number of iterations
         n_iter = int(duration / step_size) + 1
@@ -307,37 +326,49 @@ class PollutionGame:
             u_list_final[:, t + 1] = self.update_u(u_list_final[:, t], x_list_final[:, t], step_size, typ)
         return t_list, u_list_final, x_list_final
     
-    def solve_diff_game_coop (self, duration, step_size = 0.01):
-        # Define minimization parameters
+    def solve_static_game_coop (self, x_list = None, print_iter=False):
+
+        # 0. Determine state variable to follow initial or new input
+        x_list = self.check_x_list(x_list)
+
+        # 1. Define minimization problem parameters
         bounds = Bounds([0 for _ in range (self.n)], [1 for _ in range (self.n)])
         initial_guess = np.array([0.5 for _ in range (self.n)])
-        
+
+        # 2. Perform minimization
+        # jac=self.joint_gradient_lambda(x_list),
+        res = minimize(self.joint_cost_func_lambda(x_list), initial_guess, 
+                        method='L-BFGS-B', 
+                        jac=self.joint_gradient_lambda(x_list), 
+                        bounds=bounds,
+                        options={'gtol': 1e-6, "ftol": 1e-9, 'maxiter': 500})
+        u_list = res.x
+        cost = res.fun
+        self.print_when_fail(res.success)
+        return u_list, cost
+    
+    def solve_diff_game_coop (self, duration, step_size = 0.01):
         # Compute number of iterations
         n_iter = int(duration / step_size) + 1
 
-        # Initialize time axis and psi
+        # Initialize time axis and psi matrix
         t_list = [(t * step_size) for t in range (n_iter + 1)]
         self.psi = self.psi_list[0]
 
         # Initialize arrays to save state and decision variables throughout the time
         x_list_final = np.empty((self.n, n_iter + 1))
         u_list_final = np.empty((self.n, n_iter + 1))
-        cost_final = np.empty(n_iter + 1)
+        cost_list    = np.empty(n_iter + 1)
 
         # Compute initial decision
-        x_list = self.initial_x_list
-        res = minimize(self.joint_cost_func_lambda(x_list), initial_guess, method='L-BFGS-B', jac=self.joint_gradient_lambda(x_list), bounds=bounds,
-              options={'gtol': 1e-6, "ftol": 1e-9, 'maxiter': 500})
-        u_list_final[:, 0] = res.x
-        cost_final[0] = res.fun
-        self.print_when_fail(res.success)
-
+        u_list_final[:, 0], cost_list[0] = self.solve_static_game_coop()
         # Save initial condition for state variable
         x_list_final[:, 0]  = self.initial_x_list
+        # Save initial joint cost
+        # cost_list[0] = self.joint_cost_func_lambda(x_list_final[:, 0])(u_list_final[:, 0])
 
         # Loop over each time
         for t in range (n_iter):
-
             # Updating psi matrix
             self.psi = self.psi_list[int( ((t + 1) * step_size) % 12)]
 
@@ -345,13 +376,57 @@ class PollutionGame:
             x_list_final[:, t + 1] = self.update_x(u_list_final[:, t], x_list_final[:, t], step_size)
 
             # Update decision variable
-            x_list = x_list_final[:, t]
-            res = minimize(self.joint_cost_func_lambda(x_list), initial_guess, method='L-BFGS-B', jac=self.joint_gradient_lambda(x_list), bounds=bounds,
-                options={'gtol': 1e-6, "ftol": 1e-9, 'maxiter': 500})
-            u_list_final[:, t + 1] = res.x
-            cost_final[t + 1] = res.fun
-            self.print_when_fail(res.success)
-        return t_list, u_list_final, x_list_final, cost_final
+            u_list_final[:, t + 1], cost_list[t + 1] = self.solve_static_game_coop(x_list_final[:, t])
+
+            # Save initial joint cost
+            # cost_list[t + 1] = self.joint_cost_func_lambda(x_list_final[:, t + 1])(u_list_final[:, t + 1])
+        return t_list, u_list_final, x_list_final, cost_list
+    
+    # def solve_diff_game_coop (self, duration, step_size = 0.01):
+    #     # Define minimization parameters
+    #     bounds = Bounds([0 for _ in range (self.n)], [1 for _ in range (self.n)])
+    #     initial_guess = np.array([0.5 for _ in range (self.n)])
+        
+    #     # Compute number of iterations
+    #     n_iter = int(duration / step_size) + 1
+
+    #     # Initialize time axis and psi
+    #     t_list = [(t * step_size) for t in range (n_iter + 1)]
+    #     self.psi = self.psi_list[0]
+
+    #     # Initialize arrays to save state and decision variables throughout the time
+    #     x_list_final = np.empty((self.n, n_iter + 1))
+    #     u_list_final = np.empty((self.n, n_iter + 1))
+    #     cost_final = np.empty(n_iter + 1)
+
+    #     # Compute initial decision
+    #     x_list = self.initial_x_list
+    #     res = minimize(self.joint_cost_func_lambda(x_list), initial_guess, method='L-BFGS-B', jac=self.joint_gradient_lambda(x_list), bounds=bounds,
+    #           options={'gtol': 1e-6, "ftol": 1e-9, 'maxiter': 500})
+    #     u_list_final[:, 0] = res.x
+    #     cost_final[0] = res.fun
+    #     self.print_when_fail(res.success)
+
+    #     # Save initial condition for state variable
+    #     x_list_final[:, 0]  = self.initial_x_list
+
+    #     # Loop over each time
+    #     for t in range (n_iter):
+
+    #         # Updating psi matrix
+    #         self.psi = self.psi_list[int( ((t + 1) * step_size) % 12)]
+
+    #         # Update state variable
+    #         x_list_final[:, t + 1] = self.update_x(u_list_final[:, t], x_list_final[:, t], step_size)
+
+    #         # Update decision variable
+    #         x_list = x_list_final[:, t]
+    #         res = minimize(self.joint_cost_func_lambda(x_list), initial_guess, method='L-BFGS-B', jac=self.joint_gradient_lambda(x_list), bounds=bounds,
+    #             options={'gtol': 1e-6, "ftol": 1e-9, 'maxiter': 500})
+    #         u_list_final[:, t + 1] = res.x
+    #         cost_final[t + 1] = res.fun
+    #         self.print_when_fail(res.success)
+    #     return t_list, u_list_final, x_list_final, cost_final
     
     def print_when_fail (self, status):
         if not status:
@@ -362,7 +437,7 @@ class PollutionGame:
         filename = f'./output/figs/{filename}'
 
         # Choice of colors and linestyles
-        colors = plt.cm.tab10.colors
+        colors = plt.cm.tab20.colors
         linestyles = ['-' for _ in range (self.n)] #["-", "--", "-.", ":", "-", "--", "-.", ":", "-", "--"]
 
         # Initialize plot
