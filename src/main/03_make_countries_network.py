@@ -74,7 +74,7 @@ if __name__ == '__main__':
     """ 3.3. Plot wind vectors """
 
     # Plot vertex
-    fig, axs = plt.subplots(4,3, figsize=(10,10),tight_layout=True)
+    fig, axs = plt.subplots(6,2, figsize=(10,10),tight_layout=True)
     for i in range (4):
         for j in range (3):
             gdf_countries.plot(ax = axs[i][j], cmap = "pink") # cmap pink or tab10

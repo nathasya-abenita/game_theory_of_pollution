@@ -1,10 +1,11 @@
 import numpy as np
-import scipy as sp
-from scipy.optimize import minimize_scalar # Function to call Brent algorithm
+import os
+# from scipy.optimize import minimize_scalar # Function to call Brent algorithm
 from scipy.optimize import minimize # Function to minimize multivariable scalar function
-from scipy.optimize import brentq
+# from scipy.optimize import brentq
 from scipy.optimize import Bounds
 from scipy.special import expit # Sigmoid function
+from main.config import CUSTOM_CMAP
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -44,7 +45,8 @@ mpl.rcParams.update({
 
 class PollutionGame:
 
-    def __init__ (self, n : int, beta : float, psi_list : list, neigh : list, lambd : float, initial_x_list : list, mu : list = None):
+    def __init__ (self, n : int, beta : float, psi_list : list, neigh : list, 
+                  lambd : float, initial_x_list : list, mu : list = None):
         # Save parameters
         self.n = n # number of players
         self.beta = beta
@@ -73,8 +75,12 @@ class PollutionGame:
         x_list = self.check_x_list(x_list)
 
         # Create the cost function
-        f =  lambda u : np.exp( self.beta * ((1 - 2 * u) * x_list[i] + \
-        np.sum([(self.psi[j][i]*(1 - u_list[j]) * x_list[j]) if j!=i else 0 for j in self.neigh[i]]))) - \
+        f =  lambda u : np.exp( 
+            self.beta * (
+                (1 - 2 * u) * x_list[i] + \
+        np.sum([(self.psi[j][i]*(1 - u_list[j]) * x_list[j]) if j!=i else 0 for j in self.neigh[i]])
+        )
+        ) - \
         1 + (self.lambd * u)
 
         # Return cost
@@ -176,16 +182,23 @@ class PollutionGame:
         iter = 0
         is_convergent = False
         while (iter <= iter_max) and (is_convergent == False):
-            # print("Iteration " + str(iter+1) + ":")
             u_list_old = u_list.copy()
 
             # Iterating best response for each player
             for i in range (self.n):
-                u_list[i] = self.solve_best_response(i, u_list_old) # updating best respons for player i
+                # Old approach using minimize method
+                # def player_cost_func (u):
+                #     u_list_old[i] = u
+                #     return self.cost_func(i, u_list_old, x_list)
+                # opt = minimize_scalar(player_cost_func, bounds=(0, 1), method='bounded')
+                # u_list[i] = opt.x # updating best respons for player i
+
+                # Updated approach: analytical best response for player i
+                u_list[i] = self.solve_best_response(i, u_list_old, x_list) 
 
             # Convergence checking
             err = np.sum(abs(u_list - u_list_old))
-            if err < 1e-6:
+            if err < 1e-5:
                 is_convergent = True
 
             # Updating num of iteration
@@ -258,7 +271,7 @@ class PollutionGame:
         c_j = self.cost_func(j, u_list, x_list)
 
         # Return the cost difference in sigmoid function
-        return expit(c_i - c_j) # 1/(1 + np.exp(c_j-c_i))
+        return expit(c_i - c_j) # 1/(1 + np.exp(c_j-c_i)) by noting the definition of expit(x) = 1/(1+exp(-x))
     
     def u_dot (self, i, u_list, x_list, typ):
         """ First derivative of control variable for player i """
@@ -295,12 +308,12 @@ class PollutionGame:
         return u_list + step_size / 6 * (F1 + 2*F2 + 2*F3 + F4)
         
     
-    def solve_diff_game_imitate (self, duration, step_size = 0.01, typ = 'advanced'):
+    def solve_diff_game_imitate (self, duration, initial_fraction = 1/4, step_size = 0.01, typ = 'advanced'):
         """ Solve imitation game with chosen type (basic or advanced) """
 
         # Compute number of iterations
         n_iter = int(duration / step_size) + 1  # total iteration
-        initial_iter = int(0.01 * n_iter)        # iteration for initial noncoop. game
+        initial_iter = int(initial_fraction * n_iter)        # iteration for initial noncoop. game
 
         # Initialize time axis and psi matrix
         t_list = [(t * step_size) for t in range (n_iter + 1)]
@@ -323,7 +336,7 @@ class PollutionGame:
             x_list_final[:, t + 1] = self.update_x(u_list_final[:, t], x_list_final[:, t], step_size)
 
             # Update decision variable
-            u_list_final[:, t + 1] = self.update_u(u_list_final[:, t], x_list_final[:, t], step_size, typ)
+            u_list_final[:, t + 1] = self.update_u(u_list_final[:, t], x_list_final[:, t + 1], step_size, typ)
         return t_list, u_list_final, x_list_final
     
     def solve_static_game_coop (self, x_list = None, print_iter=False):
@@ -341,7 +354,7 @@ class PollutionGame:
                         method='L-BFGS-B', 
                         jac=self.joint_gradient_lambda(x_list), 
                         bounds=bounds,
-                        options={'gtol': 1e-6, "ftol": 1e-9, 'maxiter': 500})
+                        options={'gtol': 1e-6, "ftol": 1e-9, 'maxiter': 750})
         u_list = res.x
         cost = res.fun
         self.print_when_fail(res.success)
@@ -365,7 +378,7 @@ class PollutionGame:
         # Save initial condition for state variable
         x_list_final[:, 0]  = self.initial_x_list
         # Save initial joint cost
-        # cost_list[0] = self.joint_cost_func_lambda(x_list_final[:, 0])(u_list_final[:, 0])
+        cost_list[0] = self.joint_cost_func_lambda(x_list_final[:, 0])(u_list_final[:, 0])
 
         # Loop over each time
         for t in range (n_iter):
@@ -375,7 +388,7 @@ class PollutionGame:
             # Update state variable
             x_list_final[:, t + 1] = self.update_x(u_list_final[:, t], x_list_final[:, t], step_size)
 
-            # Update decision variable
+            # Update decision variable (and save joint cost)
             u_list_final[:, t + 1], cost_list[t + 1] = self.solve_static_game_coop(x_list_final[:, t])
 
             # Save initial joint cost
@@ -432,37 +445,44 @@ class PollutionGame:
         if not status:
             print('Minimization with L-BFGS-B failed!')
 
-    def display_diff_game (self, t_list, u_list_final, x_list_final, labels, filename = 'game.png'):
+    def display_diff_game (self, t_list, u_list_final, x_list_final, labels, filename, eq_line=False, axs=None, savefig=True):
         # Create file name with suitable path
         filename = f'./output/figs/{filename}'
 
         # Choice of colors and linestyles
-        colors = plt.cm.tab20.colors
+        # colors = plt.cm.tab20.colors
         linestyles = ['-' for _ in range (self.n)] #["-", "--", "-.", ":", "-", "--", "-.", ":", "-", "--"]
 
         # Initialize plot
         plt.clf()
-        fig, axs = plt.subplots(2, 1, sharex=True)
+        if axs is None:
+            _, axs = plt.subplots(2, 1, sharex=True)
 
         # State variables
         for i in range(self.n):
-            axs[0].plot(t_list, x_list_final[i, :], color=colors[i], linestyle=linestyles[i], label=labels[i])
+            axs[0].plot(t_list, x_list_final[i, :], color=CUSTOM_CMAP[i], linestyle=linestyles[i], label=labels[i])
         axs[0].set_ylabel("$x_i(t)$")
         axs[0].grid(True, linestyle=":", linewidth=0.4, alpha=0.4)
         # axs[0].legend(bbox_to_anchor=(1.02, 1), loc="upper left")
 
         # Decision variables
         for i in range(self.n):
-            axs[1].plot(t_list, u_list_final[i, :], color=colors[i], linestyle=linestyles[i])
+            axs[1].plot(t_list, u_list_final[i, :], color=CUSTOM_CMAP[i], linestyle=linestyles[i])
         axs[1].set_ylim(0, 1)
         axs[1].set_xlim(0, t_list[-1])
         axs[1].grid(True, linestyle=":", linewidth=0.4, alpha=0.4)
         axs[1].set_ylabel("$u_i(t)$")
         axs[1].set_xlabel("$t$")
 
+        # Add equilibrium line u = 0.5
+        axs[1].hlines(0.5, 0, t_list[-1], colors='tab:red', linestyles='dashed')
+
         # Save plot
-        plt.tight_layout()
-        plt.savefig(filename)
+        if savefig:
+            plt.tight_layout()
+            plt.savefig(filename, bbox_inches='tight')
+        else:
+            return axs
     
     def display_joint_cost(self, t_list, cost_list, filename):
         # Create file name with suitable path
@@ -478,3 +498,9 @@ class PollutionGame:
         plt.tight_layout()
         plt.savefig(filename)
 
+    def print_simulation_end (self, u_list_final, x_list_final, filename):
+        filename = os.path.join('output/sim', filename)
+        with open(filename, 'w') as f:
+            f.write(f'sum of pollution stock: {np.sum(x_list_final[:, -1])} \n', )
+            f.write(f'end investment: \n {u_list_final[:, -1]} \n')
+            f.write(f'end pollution stock: \n {x_list_final[:, -1]}')
