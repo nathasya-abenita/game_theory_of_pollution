@@ -277,9 +277,9 @@ class PollutionGame:
         """ First derivative of control variable for player i """
 
         if typ.lower() == "basic":
-            return sum([(u_list[j] - u_list[i]) for j in self.neigh[i]]) / self.n
+            return sum([(u_list[j] - u_list[i]) for j in self.neigh[i]]) / len(self.neigh[i])
         elif typ.lower() == 'advanced':
-            return sum([self.sigm(i, j, u_list, x_list) * (u_list[j] - u_list[i]) for j in self.neigh[i]]) / self.n
+            return sum([self.sigm(i, j, u_list, x_list) * (u_list[j] - u_list[i]) for j in self.neigh[i]]) / len(self.neigh[i])
         else:
             raise ValueError ('Accepted imitation types: ["advanced", "basic"]')
     
@@ -331,12 +331,13 @@ class PollutionGame:
         for t in range (initial_iter+1, n_iter):
             # Updating psi matrix
             self.psi = self.psi_list[int( ((t + 1) * step_size) % 12)]
-
+            
             # Update state variable
             x_list_final[:, t + 1] = self.update_x(u_list_final[:, t], x_list_final[:, t], step_size)
-
+            
             # Update decision variable
             u_list_final[:, t + 1] = self.update_u(u_list_final[:, t], x_list_final[:, t + 1], step_size, typ)
+        print('Final investment:', u_list_final[:, t])
         return t_list, u_list_final, x_list_final
     
     def solve_static_game_coop (self, x_list = None, print_iter=False):
@@ -395,94 +396,123 @@ class PollutionGame:
             # cost_list[t + 1] = self.joint_cost_func_lambda(x_list_final[:, t + 1])(u_list_final[:, t + 1])
         return t_list, u_list_final, x_list_final, cost_list
     
-    # def solve_diff_game_coop (self, duration, step_size = 0.01):
-    #     # Define minimization parameters
-    #     bounds = Bounds([0 for _ in range (self.n)], [1 for _ in range (self.n)])
-    #     initial_guess = np.array([0.5 for _ in range (self.n)])
-        
-    #     # Compute number of iterations
-    #     n_iter = int(duration / step_size) + 1
-
-    #     # Initialize time axis and psi
-    #     t_list = [(t * step_size) for t in range (n_iter + 1)]
-    #     self.psi = self.psi_list[0]
-
-    #     # Initialize arrays to save state and decision variables throughout the time
-    #     x_list_final = np.empty((self.n, n_iter + 1))
-    #     u_list_final = np.empty((self.n, n_iter + 1))
-    #     cost_final = np.empty(n_iter + 1)
-
-    #     # Compute initial decision
-    #     x_list = self.initial_x_list
-    #     res = minimize(self.joint_cost_func_lambda(x_list), initial_guess, method='L-BFGS-B', jac=self.joint_gradient_lambda(x_list), bounds=bounds,
-    #           options={'gtol': 1e-6, "ftol": 1e-9, 'maxiter': 500})
-    #     u_list_final[:, 0] = res.x
-    #     cost_final[0] = res.fun
-    #     self.print_when_fail(res.success)
-
-    #     # Save initial condition for state variable
-    #     x_list_final[:, 0]  = self.initial_x_list
-
-    #     # Loop over each time
-    #     for t in range (n_iter):
-
-    #         # Updating psi matrix
-    #         self.psi = self.psi_list[int( ((t + 1) * step_size) % 12)]
-
-    #         # Update state variable
-    #         x_list_final[:, t + 1] = self.update_x(u_list_final[:, t], x_list_final[:, t], step_size)
-
-    #         # Update decision variable
-    #         x_list = x_list_final[:, t]
-    #         res = minimize(self.joint_cost_func_lambda(x_list), initial_guess, method='L-BFGS-B', jac=self.joint_gradient_lambda(x_list), bounds=bounds,
-    #             options={'gtol': 1e-6, "ftol": 1e-9, 'maxiter': 500})
-    #         u_list_final[:, t + 1] = res.x
-    #         cost_final[t + 1] = res.fun
-    #         self.print_when_fail(res.success)
-    #     return t_list, u_list_final, x_list_final, cost_final
-    
     def print_when_fail (self, status):
         if not status:
             print('Minimization with L-BFGS-B failed!')
 
-    def display_diff_game (self, t_list, u_list_final, x_list_final, labels, filename, eq_line=False, axs=None, savefig=True):
-        # Create file name with suitable path
-        filename = f'./output/figs/{filename}'
-
-        # Choice of colors and linestyles
-        # colors = plt.cm.tab20.colors
-        linestyles = ['-' for _ in range (self.n)] #["-", "--", "-.", ":", "-", "--", "-.", ":", "-", "--"]
-
-        # Initialize plot
-        plt.clf()
+    def display_diff_game(self, t_list, u_list_final, x_list_final, labels, filename, 
+                       eq_line=True, axs=None, savefig=True, sci_not=False, show_legend=False):
+        """
+        Plots state variables x(t) and decision variables u(t) for a single simulation.
+        Serves as both a standalone plotter and a builder for multi-panel subplots.
+        """
+        # 1. Only clear figure if creating a standalone single plot
         if axs is None:
-            _, axs = plt.subplots(2, 1, sharex=True)
+            plt.clf()
+            fig, axs = plt.subplots(2, 1, sharex=True, figsize=(7, 6))
+        else:
+            fig = axs[0].get_figure()
 
-        # State variables
+        linestyles = ['-' for _ in range(self.n)]
+
+        # 2. State variables x_i(t)
         for i in range(self.n):
             axs[0].plot(t_list, x_list_final[i, :], color=CUSTOM_CMAP[i], linestyle=linestyles[i], label=labels[i])
-        axs[0].set_ylabel("$x_i(t)$")
+        axs[0].set_ylabel("$x_i(t)$", fontsize=11)
         axs[0].grid(True, linestyle=":", linewidth=0.4, alpha=0.4)
-        # axs[0].legend(bbox_to_anchor=(1.02, 1), loc="upper left")
 
-        # Decision variables
+        # Activate scientific notation for pollution stock if requested
+        if sci_not:
+            axs[0].ticklabel_format(axis='y', style='sci', scilimits=(3, 3), useMathText=True)
+
+        # Optional legend for standalone single plot
+        if show_legend:
+            axs[0].legend(bbox_to_anchor=(1.02, 1), loc="upper left", frameon=True)
+
+        # 3. Decision variables u_i(t)
         for i in range(self.n):
             axs[1].plot(t_list, u_list_final[i, :], color=CUSTOM_CMAP[i], linestyle=linestyles[i])
         axs[1].set_ylim(0, 1)
         axs[1].set_xlim(0, t_list[-1])
         axs[1].grid(True, linestyle=":", linewidth=0.4, alpha=0.4)
-        axs[1].set_ylabel("$u_i(t)$")
-        axs[1].set_xlabel("$t$")
+        axs[1].set_ylabel("$u_i(t)$", fontsize=11)
+        axs[1].set_xlabel("$t$", fontsize=11)
 
-        # Add equilibrium line u = 0.5
-        axs[1].hlines(0.5, 0, t_list[-1], colors='tab:red', linestyles='dashed')
+        # Add equilibrium reference line u = 0.5
+        if eq_line:
+            axs[1].axhline(0.5, color='tab:red', linestyle='--', linewidth=1.0, alpha=0.8)
 
-        # Save plot
+        # 4. Save plot or return axes
         if savefig:
+            filename = f'./output/figs/{filename}'
             plt.tight_layout()
-            plt.savefig(filename, bbox_inches='tight')
+            plt.savefig(filename, bbox_inches='tight', dpi=300)
         else:
             return axs
+
+    def display_diff_game_side_by_side(self, sim1_data, sim2_data, labels, filename, 
+                                   titles=("Basic Imitation", "Advanced Imitation"),
+                                   eq_line=True, sci_not=False, show_legend=True, legend_ncol=5):
+        """
+        Plots two game simulations side-by-side in a 2x2 grid with an optional shared bottom legend.
+        
+        Parameters:
+        - sim1_data: tuple of (t_list1, u_list1, x_list1)
+        - sim2_data: tuple of (t_list2, u_list2, x_list2)
+        - labels: list of strings for player/country labels
+        - filename: output filename for saved figure
+        - titles: tuple of (title_left, title_right)
+        - eq_line: whether to draw u=0.5 reference line
+        - sci_not: whether to enable scientific notation on x(t) y-axis
+        - show_legend: boolean toggle to enable/disable shared bottom legend
+        - legend_ncol: number of columns for bottom legend items
+        """
+        t1, u1, x1 = sim1_data
+        t2, u2, x2 = sim2_data
+
+        # 1. Initialize 2x2 grid (Row 0: x(t), Row 1: u(t); Col 0: Sim 1, Col 1: Sim 2)
+        fig, axs = plt.subplots(2, 2, figsize=(12, 6.5))
+
+        # 2. Render Left Column (Simulation 1)
+        self.display_diff_game(t1, u1, x1, labels, filename="", 
+                            eq_line=eq_line, axs=axs[:, 0], savefig=False, 
+                            sci_not=sci_not, show_legend=False)
+        axs[0, 0].set_title(titles[0], fontsize=12, fontweight='bold', pad=10)
+
+        # 3. Render Right Column (Simulation 2)
+        self.display_diff_game(t2, u2, x2, labels, filename="", 
+                            eq_line=eq_line, axs=axs[:, 1], savefig=False, 
+                            sci_not=sci_not, show_legend=False)
+        axs[0, 1].set_title(titles[1], fontsize=12, fontweight='bold', pad=10)
+
+        # 4. Remove redundant Y-axis labels from right column to avoid clutter
+        axs[0, 1].set_ylabel("")
+        axs[1, 1].set_ylabel("")
+
+        # 5. Add Shared Bottom Legend if enabled
+        if show_legend:
+            # Extract line handles and labels from top-left subplot
+            handles, leg_labels = axs[0, 0].get_legend_handles_labels()
+            
+            # Place centered shared legend below subplots
+            fig.legend(
+                handles, leg_labels,
+                loc='lower center',
+                bbox_to_anchor=(0.5, -0.05),
+                ncol=legend_ncol,
+                frameon=True,
+                facecolor='white',
+                edgecolor='0.8',
+                fontsize=9.5
+            )
+            # Adjust bottom margin so legend does not overlap plots
+            plt.tight_layout(rect=[0, 0.05, 1, 1])
+        else:
+            plt.tight_layout()
+
+        # 6. Save combined figure
+        out_path = f'./output/figs/{filename}'
+        plt.savefig(out_path, bbox_inches='tight', dpi=300)
     
     def display_joint_cost(self, t_list, cost_list, filename):
         # Create file name with suitable path
