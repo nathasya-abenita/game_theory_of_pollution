@@ -20,31 +20,31 @@ CUSTOM_CMAP =  [
 ]
 
 # Game configuration
-NUM_PLAYERS = 10 # number of players
+
+# Updated values with Timor-Leste
+NUM_PLAYERS = 11 # number of players
+X_INITIAL_LIST = np.array([
+    625, 311, 289, 249, 154,
+    53, 49, 16, 7, 7, 1
+]) / 100 # unit of 1000 Mt
+
+dipl_inf = np.array([66.4, 59.05, 52.35, 55.85, 49,
+           57, 22.15, 34.95, 28.45, 32.4, 24.8])
+MU_LIST = dipl_inf / np.sum(dipl_inf)
+
+# Without Timor-Leste (previous work)
+# NUM_PLAYERS = 10 # number of players
+# X_INITIAL_LIST = np.array([
+#     625, 311, 289, 249, 154,
+#     53, 49, 16, 7, 7
+# ]) / 100 # unit of 1e3 Mt
+
+# dipl_inf = [66.4, 59.05, 52.35, 55.85, 49,
+#            57, 22.15, 34.95, 28.45, 32.4]
+# MU_LIST = dipl_inf / np.sum(dipl_inf)
+
+PSI_LIST = np.load("./output/vars/psi_list.npy")
 STEP_SIZE = 0.01
 BETA = 1 
 LAMBD = 10
 NEIGH_LIST = [[i for i in range (NUM_PLAYERS)] for _ in range (NUM_PLAYERS)] # each country is connected to all other ones
-
-# Updated values with Timor-Leste
-
-# X_INITIAL_LIST = np.array([
-#     625, 311, 289, 249, 154,
-#     53, 49, 16, 7, 7, 1
-# ]) / 100 # unit of 1000 Mt
-
-# dipl_inf = np.array([66.4, 59.05, 52.35, 55.85, 49,
-#            57, 22.15, 34.95, 28.45, 32.4, 24.8])
-# MU_LIST = dipl_inf / np.sum(dipl_inf)
-
-# Without Timor-Leste (previous work)
-
-X_INITIAL_LIST = np.array([
-    625, 311, 289, 249, 154,
-    53, 49, 16, 7, 7
-]) / 100 # unit of 1e3 Mt
-
-MU_LIST = [66.4, 59.05, 52.35, 55.85, 49,
-           57, 22.15, 34.95, 28.45, 32.4]
-
-PSI_LIST = np.load("./output/vars/psi_list.npy")

@@ -88,7 +88,7 @@ def compute_wind_speed_mean (geom, raster_wind_u, raster_wind_v, raster_pop):
     v_weighted = (w * raster_wind_v.data[valid]).sum() / w.sum()
     return u_weighted, v_weighted
 
-def compute_speed_proportion (wind_vector_list_per_month, month_id, country_id, s_max = 4.3):
+def compute_speed_proportion (wind_vector_list_per_month, month_id, country_id, s_max = 4.7):
     wind_vector = np.array(wind_vector_list_per_month[month_id][country_id])
     speed = np.sqrt(np.sum(wind_vector**2))
     if speed < s_max:
@@ -118,7 +118,7 @@ def compute_angle_proportion (wind_vector_list_per_month, centroids, month_id, c
         p = 0
     return p
 
-def compute_distance_proportion (centroids, country_id_i, country_id_j, d_max = 1_964_972.7):
+def compute_distance_proportion (centroids, country_id_i, country_id_j, d_max = 2_500_000):
 
     x_delta = centroids[country_id_i].x - centroids[country_id_j].x
     y_delta = centroids[country_id_i].y - centroids[country_id_j].y
