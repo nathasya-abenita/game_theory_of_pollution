@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import array_to_latex as a2l
 from modules.countries_network import *
 from main.config import COUNTRY_CODES
+from shapely import distance, LineString
 
 if __name__ == '__main__':
     
@@ -34,6 +35,16 @@ if __name__ == '__main__':
 
     centroids_population, lines = create_graph_vertices(raster_pop, X, Y, gdf_countries)
 
+    distance_list = []
+    for i in range (len(centroids_population)):
+        distance_list_interim = []
+        for j in range (len(centroids_population)):
+            if i != j:
+                dist = distance(centroids_population[i], centroids_population[j])
+                distance_list_interim.append(dist)
+        distance_list.append(np.sort(distance_list_interim)[2])
+    print('sorted distances:', np.sort(distance_list))
+
     # Plotting
     base = gdf_countries.plot(cmap = "pink")
     gdf_countries.centroid.plot(ax = base, marker = 'o', color = 'blue', markersize = 15, label = "Basic centroid")
@@ -41,10 +52,28 @@ if __name__ == '__main__':
     lines.plot(ax = base, color = "orange")
 
     # Decoration
-    plt.title("Centroids of ASEAN Countries")
+    # plt.title("Centroids of ASEAN Countries")
     plt.axis("off")
-    plt.legend(fontsize = 8)
+    plt.legend()
     plt.savefig('./output/figs/centroids.png', bbox_inches='tight')
+
+    # Plot graph
+    neigh = [i for i in range (11)]
+
+    base = gdf_countries.plot(cmap = "pink") # cmap pink juga bagus
+
+    # Plot vertex
+    centroids_population.plot(ax = base, marker = 'o', color = 'red', markersize = 60)
+
+    # Plot edges
+    for i in range (len(neigh)):
+        for j in neigh:
+            if j != i:
+                line = LineString([centroids_population[i], centroids_population[j]])
+                plt.plot(*line.xy, linewidth=0.7, color='turquoise')
+
+    plt.axis("off")
+    plt.savefig('./output/figs/graph.png', bbox_inches='tight')
 
     """ 3.1. Read resampled population count raster data """
 
@@ -74,7 +103,7 @@ if __name__ == '__main__':
     """ 3.3. Plot wind vectors """
 
     # Plot vertex
-    fig, axs = plt.subplots(6,2, figsize=(10,10),tight_layout=True)
+    fig, axs = plt.subplots(4, 3, figsize=(10,10),tight_layout=True)
     for i in range (4):
         for j in range (3):
             gdf_countries.plot(ax = axs[i][j], cmap = "pink") # cmap pink or tab10
