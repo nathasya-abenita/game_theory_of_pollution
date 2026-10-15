@@ -418,7 +418,7 @@ class PollutionGame:
         # 2. State variables x_i(t)
         for i in range(self.n):
             axs[0].plot(t_list, x_list_final[i, :], color=CUSTOM_CMAP[i], linestyle=linestyles[i], label=labels[i])
-        axs[0].set_ylabel("$x_i(t)$", fontsize=11)
+        axs[0].set_ylabel("$x_i(t)$ [$10^2$ Mt]", fontsize=11)
         axs[0].grid(True, linestyle=":", linewidth=0.4, alpha=0.4)
 
         # Activate scientific notation for pollution stock if requested
@@ -436,7 +436,7 @@ class PollutionGame:
         axs[1].set_xlim(0, t_list[-1])
         axs[1].grid(True, linestyle=":", linewidth=0.4, alpha=0.4)
         axs[1].set_ylabel("$u_i(t)$", fontsize=11)
-        axs[1].set_xlabel("$t$", fontsize=11)
+        axs[1].set_xlabel("$t$ [month]", fontsize=11)
 
         # Add equilibrium reference line u = 0.5
         if eq_line:
@@ -521,7 +521,7 @@ class PollutionGame:
         # Plot
         plt.clf()
         plt.plot(t_list, cost_list)
-        plt.xlabel("$t$"); plt.ylabel("$c(t)$")
+        plt.xlabel("$t$ [month]"); plt.ylabel("$c(t)$")
         plt.grid(True, linestyle=":", linewidth=0.4, alpha=0.4)
 
         # Save plot
