@@ -1,0 +1,961 @@
+%%
+%% Copyright 2019-2024 Elsevier Ltd
+%%
+%% Template article for cas-dc documentclass for
+%% double column output.
+
+\documentclass[a4paper,fleqn]{cas-dc}
+
+% If the frontmatter runs over more than one page
+% use the longmktitle option.
+%\documentclass[a4paper,fleqn,longmktitle]{cas-dc}
+
+\usepackage[authoryear,longnamesfirst]{natbib}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\setcounter{MaxMatrixCols}{20}
+
+% Theorem-like environments
+\newtheorem{algorithm}{Algorithm}
+
+\begin{document}
+\let\WriteBookmarks\relax
+\def\floatpagepagefraction{1}
+\def\textpagefraction{.001}
+
+% Short title
+\shorttitle{Transboundary Air Pollution in Southeast Asia}
+
+% Short author
+\shortauthors{Christien and Santika}
+
+% Main title
+\title[mode=title]{Modeling Transboundary Air Pollution in Southeast Asia with Game Theory}
+
+% First author
+\author[1]{Nathasya Abenita Christien}[
+  orcid=0009-0006-3633-8873
+]
+\cormark[1]
+\fnmark[1]
+\ead{nathasya.abenita@gmail.com}
+\credit{Conceptualization, Methodology, Software, Writing -- original draft}
+
+\affiliation[1]{
+  organization={Faculty of Mathematics and Natural Sciences, Bandung Institute of Technology},
+  addressline={},
+  city={Bandung},
+  postcode={},
+  state={West Java},
+  country={Indonesia}
+}
+
+% Second author
+\author[2]{Aditya Purwa Santika}[
+  orcid=0000-0000-0000-0000
+]
+\fnmark[2]
+\ead{aditps@itb.ac.id}
+\credit{Supervision, Writing -- review \& editing}
+
+\affiliation[2]{
+  organization={Combinatorial Mathematics Research Group, Faculty of Mathematics and Natural Sciences, Bandung Institute of Technology},
+  addressline={},
+  city={Bandung},
+  postcode={},
+  state={West Java},
+  country={Indonesia}
+}
+
+% Corresponding author
+\cortext[1]{Corresponding author}
+\fntext[1]{}
+
+% Abstract
+\begin{abstract}
+In this research, we investigate the policies of Southeast Asia countries related to trans-boundary pollution using a differential game. Each country is modeled as an agent with its own pollution, which can be transferred to other countries. Each country can decide its investment rate in clean policies. When the countries aim to optimize their condition, each country incurs a pollution cost, defined as the sum of environmental costs and the costs for clean policies. The environmental cost depends on the pollution the country emits or receives from others. Their decisions are based on four variations of behavior: (1) a non-cooperative game where players optimize their own costs, (2) a cooperative game where players optimize their joint global costs together, (3) a basic imitation game where players follow their neighbors' choice of investment rate, and (4) an advanced imitation game where players' imitation depends on the success of their neighbors. Additionally, to model the rate of pollution transferred from one country to another, a novel method is proposed by constructing a graph that allows the consideration of spatial and meteorological aspects of the problem. From the simulations, it is found that Southeast Asian countries can achieve lower pollution levels more quickly when they act cooperatively rather than non-cooperatively. By imitating each other, the countries can even reach a cleaner state in the long run.
+\end{abstract}
+
+% Research highlights
+\begin{highlights}
+\item A differential game model is proposed to study transboundary pollution among Southeast Asian countries under four behavioral assumptions.
+\item A novel graph-based method incorporating spatial and meteorological data is introduced to compute inter-country pollution transfer rates.
+\item Cooperative behavior yields faster reduction in pollution stock compared to non-cooperative behavior; imitation behavior enables convergence to zero pollution in the long run.
+\end{highlights}
+
+% Keywords
+\begin{keywords}
+transboundary pollution \sep ASEAN \sep differential game \sep non-cooperative \sep cooperative \sep imitation
+\end{keywords}
+
+\maketitle
+
+%% Main text
+
+\section{Introduction}
+
+Air pollution is a destructive problem faced by humans and the environment. This problem is often a trans-boundary issue since pollution from one area can be transferred to another. In Southeast Asia, trans-boundary pollution between countries occurs repeatedly since 1990s \citep{Mayer2006}. However, there has been little success in solving this problem until now, even after a regional agreement related to this was established in 2002 under the regional organization, Association of Southeast Asian Nations (ASEAN) \citep{Varkkey2014, nazeer2017overview}. To understand this problem, we need a method to analyze the behavior of each country. By understanding the countries' behavior, a correct action can be taken to solve this long-lasting problem.
+
+Game theory is a mathematical approach used to analyze conflicts between individuals. This problem can be seen as conflicts between nations since a country can pollute another one. Furthermore, there have been various researches utilizing game theory to study this phenomena. Various transboundary pollution games have been studied which compared the situation where countries cooperate and non-cooperate \citep{missfeldt1999game}. The result shows that all countries collectively will reach a better condition when they are cooperative as compared to non-cooperative.
+
+A particular game model, differential game, has also been used to model transboundary pollution. Differential game uses differential equation to model players' state, making the simulation runs continuously over a time interval. This type of game gives an advantage of being able to model the time dependent aspect of pollutant \citep{missfeldt1999game}. A differential game that models the transboundary pollution in the European Union has been studied \citep{Schuller}. Using differential game theory, the pollution stock of a country is represented as a system state. The pollution level in one country influences the pollution in its neighboring countries. During the game, each country makes decisions regarding the investment rate in more environmentally-friendly (clean) policies. When a country wants to optimize its condition, it minimizes its pollution cost, defined as the sum of environmental damage and clean policy investment costs.
+
+Based on past research, two aspects need to be scrutinized to analyze the proposed problem. First, there has been no research focusing on modeling transboundary pollution in Southeast Asia using a theoretical game model. Next, a method for defining the parameters regarding the rate of transferring pollution is needed. This method requires the consideration of the meteorological aspects of the countries. In this paper, these aspects will be addressed. Using the existing differential game, we will limit our scope to eleven countries in Southeast Asia that are members of ASEAN as of 2025, considering them as players. Additionally, a mathematical graph to model the temporal- and spatial-dependent parameters will be proposed.
+
+This paper consists of five sections. In the first section, the background and objectives of this research are discussed. In the next section, the mathematical models used in this research are constructed. A differential game model is employed, and a weighted and directed graph is utilized to compute a parameter used in the game. In the same section, several properties of the game are analyzed. In the third section, the simulation settings are discussed. This section mentions the data, algorithms, and numerical methods used to simulate the game. Next, the results of the simulations are presented and analyzed in Section \ref{sec:simulations}. Finally, the results are concluded, and future research directions are suggested in the last section.
+
+\section{Mathematical Models} \label{sec:mathematical models}
+
+In this section, a differential game to model the dynamics of pollution and the assumptions of Southeast Asian countries' behavior are proposed. At first, the basic property of the game is discussed and some remarks by doing stability analysis is discussed. Next, a graph model is defined to compute needed parameter, that is the rate of a country pollutes another one. Lastly, several variations of the model can be made by assuming different behaviors.
+
+\subsection{Differential Game Basics}
+
+Let eleven countries in Southeast Asia as the game players, that is $\mathcal{N}=\{1,2,...,11\}$ by labels in Table \ref{table:label}. We define $\mathcal{N}^i$ as the neighborhood of country $i$, consisted of country $i$ and its neighboring countries. A country is assumed to be able to pollute its neighboring countries. In this research, each country in Southeast Asia has other countries as its neighboring countries, which means $\mathcal{N}^i=\mathcal{N}$. In other words, each country can pollute any other country in Southeast Asia.
+
+The state of country $i\in\mathcal{N}$ is represented by $x_i(t)$ which denotes country $i$'s pollution stock at time $t\in[0,T]$. We let the time interval in the unit of month and $T>0$ is a fixed and known value. We are interested to analyze the dynamics of this system state. Each country $i\in\mathcal{N}$ has control variable $u_i(t)\in [0,1]$ which represents investment rate of country $i\in\mathcal{N}$ to clean or environmentally-friendly policies. When $u_i(t)=0$, the country does not invest to clean policies, while $u_i(t)=1$ means that it does maximal effort in the investment.
+
+Next, we define the dynamics for the system states. First, we define indexes for months, that is $T_{id}=\{0,1,...,11\}$ which represents twelve months. Stock pollution of country $i\in\mathcal{N}$ changes by following an ordinary differential equation:
+
+\begin{equation} \label{equation:pollution dynamics}
+    \begin{split}
+    \dot{x}_i(t) = &(1-u_i(t))x_i(t) \\
+    &+ \sum_{j\in \mathcal{N}^i \backslash \{i\}}{\left(\psi_{ji}^{\lfloor t \mod12 \rfloor} (1-u_j(t))x_j(t)\right)} \\
+    &- u_i(t)x_i(t).
+\end{split}
+\end{equation}
+
+
+with $\psi_{ji}^t\in [0,1]$ denotes the rate of country $j$ pollutes country $i$ in month $t\in T_{id}$. $\psi_{ji}^t=0$ means that there is no pollution from country $j$ that influences country $i$, while $\psi_{ji}^t=1$ means that all of country $j$'s pollution affect country $i$. We will further discuss this parameter in Subsection \ref{subsection:graph network}.
+
+The first term of the differential equation denotes that pollution stock of a country grows proportionally to the amount of stock at that time. The second one represents the growth due to neighboring countries' pollution stock. Lastly, the third term represents the reduction of pollution stock due to the country's investment to clean policies.
+
+\begin{table}[h]
+    \caption{List of Southeast Asia countries with corresponding label, pollution stock in 2019, and diplomatic influence score average from 2024--2025}
+    \label{table:label}
+    \centering
+    \begin{tabular*}{\tblwidth}{@{}llp{2cm}p{2.5cm}@{}}
+    \toprule
+    Country & Label & Pollution Stock (Mt) & Diplomatic Influence Score \\
+    \midrule
+    Indonesia   & 1 & 625 & 66      \\
+    Vietnam     & 2 & 311 & 59      \\
+    Thailand    & 3 & 289 & 52      \\
+    Malaysia    & 4 & 249 & 56      \\
+    Philippines & 5 & 154 & 49      \\
+    Singapore   & 6 & 53  & 57      \\
+    Myanmar     & 7 & 49  & 22      \\
+    Cambodia    & 8 & 16  & 35      \\
+    Laos        & 9 & 7   & 28      \\
+    Brunei      & 10 & 7  & 32      \\
+    Timor-Leste & 11 & 1  & 25      \\
+    \bottomrule
+    \end{tabular*}
+\end{table}
+
+Each country $i\in \mathcal{N}$ has a cost function which is represented by pollution cost $c_i(t)$ that will be minimized if the country wants to optimize their condition. Pollution cost is defined as
+\begin{equation}
+    c_i(t) = e_i(\beta \dot{x}_i(t)) + \lambda_i u_i(t).
+\end{equation}
+The first term $e_i(t)$ represents environmental cost due to pollution flow. Parameter $\beta \geq 1$ is the punishment rate to the pollution flow that is set by external party, such as ASEAN. The second term is the clean policies cost with $\lambda_i \geq 0$ as the cost multiplier.
+
+Next, we set
+\begin{equation}
+    e_i(t)= \exp{(\beta \dot{x}_i(t))} -1
+\end{equation}
+so the environmental cost grows exponentially with pollution flow and the value is zero when there is no flow. To conclude, the pollution cost of country $i\in\mathcal{N}$ is
+\begin{equation}
+    c_i(t)= \exp{(\beta \dot{x}_i(t))} -1 + \lambda_i u_i(t).
+\end{equation}
+
+\subsection{Stability Analysis}
+
+In this section, the linear stability of Equation \eqref{equation:pollution dynamics} is discussed. By doing stability analysis, we know the fixed point of the system and whether it is stable or not.
+
+First, the fixed points of the system are identified, which are the values of $x_i(t)^*$ such that Equation \eqref{equation:pollution dynamics} is zero. Note that $x_i^*(t)=0$ for each $i\in\mathcal{N}$ is the trivial fixed point of the system. Aside from that, the non-trivial fixed point satisfies
+
+\begin{equation}
+\label{equation:stability}
+    x_i^*(t)=\dfrac{\sum_{j\in \mathcal{N}^i \backslash \{i\}}{\left(\psi_{ji}^{\lfloor t \mod12 \rfloor} (1-u_j^*(t))x_j^*(t)\right)}}{2u_i^*(t)-1}
+\end{equation}
+
+if $u_i^*\neq0.5$ with $x_j^*, u_i^*, \text{ and }, u_j^*$ denotes the fixed point for country $j$'s pollution stock, optimal investment by country $i$, and optimal investment by country $j$. On the other hand, note that when a country $i\in\mathcal{N}$ does not receive pollution from other countries and chooses investment $u_i^*=\frac{1}{2}$, $x_i(t)$ reaches its stability.
+
+Now, we check the linear stability of the fixed points. Note that $\dfrac{d\dot{x_i}(t)}{dx_i(t)}=1-2u_i(t)$. The value of the derivative is negative when $u_i(t)>\frac{1}{2}$ and positive when $u_i(t)<\frac{1}{2}$. Based on the linear stability theory, fixed point $x_i^*(t)$ is linearly stable when $\dfrac{d\dot{x_i}(t)}{dx_i(t)}<0$ \citep{Strogatz}. By this, when $u_i^*(t)>\frac{1}{2}$ for each $i\in\mathcal{N}$, there is a stable fixed point of the system. In our simulation, we are interested to see whether the value of $u_i^*(t)$ stays more than $\frac{1}{2}$ to ensure the stability of each country's pollution stock.
+
+Lastly, the convergence of players' strategy in imitation game can be discussed. In imitation game, strategy $u_i^*(t)$ is the stable fixed point if $u_i^*(t)=u_j^*(t)$ for each $j\in\mathcal{N}^i\backslash\{i\}$ \citep{Schuller}. Because of this, since each country is in the neighborhood of any other countries, an optimal strategy that becomes the stable fixed point exists. In other words, optimal investment by each country will converge to the same value.
+
+\subsection{Graph of Countries' Network for Rate of Pollution} \label{subsection:graph network}
+
+In this subsection, we will focus on a method to compute parameter $\psi_{ij}^t$ which is the rate of country $j$ pollutes country $i$ in month $t\in T_{id}$. This method is a development from \citet{Schuller} where the parameter is assumed to be constant through out the time and symmetrical between two countries. With the proposed model, these assumptions are removed, allowing a more realistic parameter. The rate is influenced by at least the position of two countries and meteorological factor, such as wind speed. We use directed and weighted graph to model this problem by considering those factors.
+
+Let $V$ be a set of vertices and $E$ be a set of directed edges. Let also $\psi$ as a mapping with $\psi:E\times T_{id}\xrightarrow[]{} [0,1]\subset\mathbb{R}$. This mapping assigns a weight to an edge for an arbitrary month. We define graph $G_\psi=(V,E,\psi)$ that represents relationships between Southeast Asian countries and the rate of a country pollutes another one.
+
+We set $V=\{1,2,...,10\}$ to consist of the ten ASEAN countries, following labels in Table \ref{table:label}. Each country $i\in V$ lies in $\mathbb{R}^2$ and has coordinate $C_i\in\mathbb{R}^2$. To choose a coordinate to represent a country, we choose a weighted-centroid of a country with human population as its weight. This choice is considered because of the differential game model. With the model, a continuous-emitted pollution is more relevant which is commonly produced by urban activities, such as industrial and electricity generating activities. We assume that more pollution is emitted in areas with more human population.
+
+Each vertex or country $i\in V$ has an attribute of vector $w_i^t=(u_i^t,v_i^t)$, which denotes average wind velocity of country $i$ in month $t\in T_{id}$. The component of the vector respectively denotes the zonal and meridional flow direction. We also denote the wind speed of country $i$ in month $t\in T_{id}$ as $\lVert w_i^t \rVert$, that is the Euclidean norm of the wind vector.
+
+A pair of countries are connected with a pair of directed edges, representing that both are neighbors to each other. We define $E=\{e_{ij} \mid i,j\in V\}$ with $e_{ij}$ as an edge started on vertex $i$ and ended on vertex $j$. Note that $e_{ij}\neq e_{ji}$ when $i\neq j$.
+
+At last, we will define the wanted parameter, which is denoted by $\psi_{ij}^t=\psi(e_{ij},t)$. Several assumptions are set first.
+\begin{enumerate}
+    \item Pollution from a country influences only its neighbors.
+    \item Pollution from an area is only dispersed horizontally.
+    \item More pollution is emitted in a country with bigger wind speed.
+    \item More pollution from a country arrives in a neighboring country with smaller distance between the two.
+    \item Pollution from a country will be dispersed and more is brought to an area that is in the same direction with the origin country wind vector.
+\end{enumerate}
+
+We formulate
+\begin{equation}
+    \psi_{ij}^t = n_{ij}s_i^t a_{ij}^t d_{ij}
+\end{equation}
+with $n_{ij}$, $s_i^t$, $a_{ij}^t$, and $d_{ij}$ as a proportional value in $[0,1]$. The four values are defined as follows.
+\begin{enumerate}
+    \item By the first assumption,
+    \[n_{ij} = \begin{cases}
+        1 &, e_{ij} \in E\\
+        0 &, \text{else}
+    \end{cases}.
+    \]
+    \item By the second and third assumption,
+    \[s_i^t =
+    \begin{cases}
+        \dfrac{\lVert w_i^t \rVert}{s_{max}} & , \lVert w_i^t \rVert \leq s_{max} \\
+        1 & , \text{else}
+    \end{cases}.
+    \]
+    Parameter $s_{max}$ represents largest speed that moves all pollution stock from a country.
+
+    \item By the second and fourth assumption,
+    \[ d_{ij} =
+    \begin{cases}
+        \cos{\left(\dfrac{\lVert C_i C_j \rVert}{d_{max}} \cdot \dfrac{\pi}{2}\right)} & , \lVert C_i C_j \rVert \leq d_{max}\\
+        0 & , \text{else}
+    \end{cases}.
+    \]
+    Parameter $d_{max}$ represents largest distance that can be travelled by emitted pollution.
+
+    \item Let $\theta_{ij}^t$ as the angle between vector $w_i$ and $C_iC_j$. The proportion of emission that is sent from country $i$ to $j$ depends on the value of $\theta_{ij}^t$. By the second and fifth assumption,
+    \begin{align*}
+    a_{ij}^t & =
+    \begin{cases}
+        \cos{\theta_{ij}^t} & , 0\leq \theta_{ij}^t \leq \frac{\pi}{2} \text{ or } \frac{3\pi}{2} \leq \theta_{ij}^t\leq 2\pi \\
+        0 & , \text{else}
+    \end{cases}
+    \\
+    & =
+    \begin{cases}
+        \dfrac{w_i^t\cdot C_iC_j}{\lVert w_i^t \rVert \lVert C_iC_j \rVert} & , w_i^t\cdot C_iC_j \geq 0\\
+        0 & , \text{else}
+    \end{cases}.
+    \end{align*}
+\end{enumerate}
+
+\subsection{Model Variations by Players' Behavior} \label{subsection:model variation}
+
+We consider three types of behavior that the countries can play. For each behavior, a solution concept is proposed.
+
+\subsubsection{Noncooperative}
+
+When behaving noncooperatively, each country minimizes their own pollution cost $c_i(t)$ individually. At each time $t\in [0,T]$, all countries play a noncooperative static game where Nash equilibrium is one of the commonly used concept solution. Thus, we can find the Nash equilibrium $u^*=(u_1^*,u_2^*,...,u_{10}^*)$ at each $t\in [0,T]$.
+
+\subsubsection{Imitation}
+
+Let each country does not optimize their own cost, but they want to imitate the average of investation that is chosen by its neighboring countries. The change of investment $u_i$ that country $i\in \mathcal{N}$ do is
+\begin{equation}
+    \dot{u_i}(t) = \dfrac{1}{\lvert \mathcal{N}^i \rvert} \sum_{j\in \mathcal{N}^i}{\left(u_j(t) - u_i(t)\right)}.
+\end{equation}
+
+To develop the imitation behavior, we can let neighboring countries that are successful to have bigger impact in the imitation behavior of a country. A country is successful when it has lower pollution cost. By this, the change of investation $u_i$ by country $i\in \mathcal{N}$ is
+\begin{equation}
+    \dot{u_i}(t) = \dfrac{1}{\lvert \mathcal{N}^i \rvert} \sum_{j\in \mathcal{N}^i}{S_{ij}(t)\left(u_j(t) - u_i(t)\right)}.
+\end{equation}
+with sigmoid function $S_{ij}(t)=\dfrac{1}{1+\exp{\left(c_j(t)-c_i(t)\right)}}$.
+The value $S_{ij}(t)$ can be seen as weight. The weight grows when country $j$ has lower pollution cost than country $i$. Because of it, the function ensures country $j$ that is more successful than country $i$ to have bigger weight.
+
+\subsubsection{Cooperative}
+
+When being cooperative, all countries minimize their pollution costs $c_i(t)$ together in hope that they can reach better state than when they are behaving noncooperatively. At each time $t\in [0,T]$, all countries play a cooperative static game where Pareto efficient is one of the commonly used concept solution \citep{PositioningCGT}. Thus, we can find the Pareto efficient $u^*=(u_1^*,u_2^*,...,u_{10}^*)$ at each $t\in [0,T]$.
+
+In finding the Pareto efficient control, the popular weighted-sum method is used \citep{PositioningCGT, YANG2014197}. This method sums the cost function of each country to one joint function that wants to be minimized together. Formally, we write the optimization problem at time $t\in[0,T]$ as
+\begin{align} \label{equation:coop optimization problem}
+    \min c(t) = \sum_{i\in\mathcal{N}}\alpha_i c_i(t)
+\end{align}
+\begin{align*}
+    0 \leq u_i(t) \leq 1, \forall i\in\mathcal{N}
+\end{align*}
+where $\sum_{i\in\mathcal{N}}\alpha_i=1$ with $\alpha_i\in\mathbb{R}$ for each $i\in\mathcal{N}$ denoting the relative importance of country $i$ in the minimization problem.
+
+\section{Setting of Simulation} \label{sec:simulations}
+
+\subsection{Numerical Implementation}
+
+In this section, we will discuss the algorithmic approach to solve the differential game numerically. Different algorithms are also proposed to find the chosen solution concept based on different behavior that is observed.
+
+First, let us have a static game for a certain time $t\in[0,T]$. According to the three types of behavior in Subsection \ref{subsection:model variation}, we can discuss the algorithm to find the game solution. In imitation game, the decision that the players choose are straightforward as the the changes follow a differential equation. For cooperative game, we need to solve a multivariable and single objective optimization problem which is defined in \eqref{equation:coop optimization problem}. On the other hand, more steps are needed to find the solution for noncooperative game by following the definition of Nash equilibrium solution. In the following algorithm, Nash equilibrium is found by iteratively finding each player's best response to its opponents until convergence is reached.
+
+\begin{algorithm}[Nash Equilibrium for Noncooperative Game]
+\begin{enumerate} \label{algorithm:static}
+    \item[]
+    \item Choose initial guess for the Nash equilibrium $u_1^*, u_2^*, ..., u_n^*$.
+    \item For player $i=1,2,...,n$, do:
+    \begin{enumerate}
+        \item Let the opponent's strategy $s_{-i}^*$ be fixed based on the previous guess.
+        \item Compute player $i$'s new strategy $s_i^*$, that is player $i$'s best response of to her opponent's strategies $s_{-i}^*$ by minimizing $c_i(s_i)^*$.
+        \item Update $s_i^*$.
+    \end{enumerate}
+    \item Repeat the second until convergence criteria is reached. For example, the maximum number of iterations is reached or players' strategy has converged.
+\end{enumerate}
+\end{algorithm}
+
+Now we will discuss the algorithm to find the solution for the differential game. We discretize the time interval $[0,T]$ with \emph{step size} $\Delta{t}$. Let $x_{i,j}$ as $x_i(j\Delta{t})$, that is country $i$'s pollution stock at time $j\Delta{t}$. Similarly, we use the same notation with $u_i^*(t)$ and $c_i(t)$. The solution for the game when players behave noncooperatively or cooperatively are approximated as follows.
+
+\begin{algorithm}[Differential Noncooperative or Cooperative Game] \label{algorithm:noncoop coop}
+\begin{enumerate}
+ \item[]
+ \item Initialize $x_{i,0}$ for each $i\in\mathcal{N}$.
+ \item Find $u_{i,0}^*$ for each $i\in\mathcal{N}$ that is the solution concept (Nash equilibrium or Pareto efficient, according to the behavior) for the static game with cost function $c_{i,0}$.
+ \item For $j=0,1,...,N-1$, do the following steps:
+    \begin{enumerate}
+        \item Compute $x_{i,j+1}$ for each $i\in\mathcal{N}$ by using $\dot{x_i}(t)$.
+        \item Find $u_{i,0}^*$ for each $i\in\mathcal{N}$ that is the solution concept (Nash equilibrium or Pareto efficient, according to the behavior) for the static game with cost function $c_{i,j+1}$.
+    \end{enumerate}
+\end{enumerate}
+\end{algorithm}
+
+Next, the algorithm for differential game with imitation behavior changes slightly. We assume that the players act noncooperatively for several time in the beginning.
+
+\begin{algorithm}[Differential Imitation Game] \label{algorith:imitasi}
+\begin{enumerate}
+    \item[]
+    \item Execute Algorithm \ref{algorithm:noncoop coop} for a chosen time interval, for example until $x_{i,M}$ and $u_{i,M}^*$ with $M<N$ are computed.
+    \item For $j=M,M+1,...,N-1$, do the following steps:
+    \begin{enumerate}
+        \item Compute $x_{i,j+1}$ for each $i\in\mathcal{N}$ by using $\dot{x_i}(t)$.
+        \item Compute $u_{i,j+1}^*$ for each $i\in\mathcal{N}$ by using $\dot{u_i}(t)$.
+    \end{enumerate}
+\end{enumerate}
+\end{algorithm}
+
+For any ordinary differential equation problem, the fourth order of Runge-Kutta is used with step size $\Delta t=0.01$. Next, the optimization problem in Algorithm \ref{algorithm:static} is solved analytically. Lastly, the optimization problem for cooperative game is solved using a method in SciPy, such as L-BFGS-G \citep{2020SciPy-NMeth}.
+
+\subsection{Setting of Differential Game}
+
+Pollution stock of a country represents the carbon emission of the country. As the initial condition, carbon dioxide emission from each countries in 2019 is used \citep{lau, IRENA}. The emission is related to emission from electricity, transportation, industrial activity, and others.
+
+By the data that is summarized in Table \ref{table:label}, we can categorize the eleven countries to two groups. The first group consists of five countries with initial pollution stock that is relatively bigger than the others. This group consists of Indonesia, Vietnam, Thailand, Malaysia, and Philippines. The second group with smaller pollution stock consists of the rest of the countries.
+
+Parameter $\lambda_i$ is set to 10 for each country. This value is chosen by considering the chosen value in the main reference that considered this value to be relatively realistic and there has not been a method to model the parameter realistically. On the other hand, this parameter has little influence to the model since the environmental function grows exponentially.
+
+In constructing the cooperative game, we need to decide the value of $\alpha_i$ that represents the relative importance of country $i$ in the minimization problem. We assume that the relative importance of a country is proportional to the diplomatic influence of the country. In Table \ref{table:label}, diplomatic influence score for each country is taken from Lowy Institute Asia Power Index \citep{InstituteLowy}.
+
+Let $DP_i$ denotes the diplomatic influence value of country $i\in\mathcal{N}$ based on Table \ref{table:label}. The relative importance for country $i\in\mathcal{N}$, $\alpha_i$, can be computed with
+
+\begin{equation} \label{equation:diplomatic influence weight}
+    \alpha_i = \dfrac{DP_i}{\Sigma_{i\in\mathcal{N}}DP_i}.
+\end{equation}
+
+\subsection{Spatial Data and Data Processing} \label{subsection:spatial data}
+
+To create the graph of network for countries in Southeast Asia, several spatial data is needed. Spatial data gives geographic information about theEearth and its feature. In general, there are two types of spatial data, vector data and raster data, which are different by its storing technique \citep{JANIPELLA2019143}. Vector data is composed by geometrical object, such as points, lines, and polygons. Raster data divides a geographical area to grid cells where each cell contains a value.
+
+The used spatial data are listed.
+\begin{enumerate}
+\item \textbf{Vector data for the ten countries in ASEAN} \\
+The data is extracted from the data of countries' boundary in the world. \citep{NaturalEarth}. In this data, each country is represented as a polygon.
+
+\item \textbf{Raster data of human population estimation in ASEAN in 2020} \\
+The data is extracted from the population count of the world \citep{RasterPopulation}. Each cell of the data has the size of $30\times30$ km and it contains the population count in the cell.
+
+\item \textbf{Raster data of zonal and meridional flow in ASEAN} \\
+The data is extracted from the monthly climatology data in the world \citep{RasterWind}. The wind data is taken at the atmosphere height of 850 mb and for the twelve months. The data is the average of the monthly wind velocity over 1950--2010. In each cell, the velocity is in the unit of m/s. The data is taken at 850 mb by considering that the furthest distance between two countries in the graph is $3.16\times 10^6$ m. The meteorological phenomena that can reach that distance is synoptic scale \citep{Synoptic}. This phenomena is influenced by the activity at the height of 850 mb \citep{Weather}.
+\end{enumerate}
+
+Each data is projected to Universal Transverse Mercator (UTM) of zone 49N. This projection is chosen to make sure the data coordination is in meter unit rather than in longitude and latitude degree. This projection is also located in the center of Southeast Asia so it can reduce the distortion from the projection.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.8\linewidth}
+    \includegraphics[width=\linewidth]{figures/data-population.png}
+    \caption{}
+\end{subfigure}
+
+\begin{subfigure}[b]{0.8\linewidth}
+    \includegraphics[width=\linewidth]{figures/data-meridional.png}
+    \caption{}
+\end{subfigure}
+
+\begin{subfigure}[b]{0.8\linewidth}
+    \includegraphics[width=\linewidth]{figures/data-zonal.png}
+    \caption{}
+\end{subfigure}
+
+\caption{Snippet of the used spatial data. (a) Raster data of population count; (b) Vector data of countries' boundary with raster data of zonal flow in January; (c) Vector data of countries' boundary with raster data of meridional flow in January.}
+\label{fig:data}
+\end{figure}
+
+To construct graph $G_\psi$, we need to find several values that represent a country, that is its $x$-axis and $y$-axis component of the country's coordinate and also its zonal and meridional velocity. The population-weighted average for each value is chosen to represent each country. By using the country's boundary vector data and the raster data for each wanted value, the procedure to compute the value will be discussed.
+
+At first, the polygon of a country is rasterized according to the size of raster data for a value that we wanted. Next, we save the information in cells that are contained in the rasterized country polygon and the raster data of the wanted value. We say that this cells are in the intersection of a country's polygon and a chosen raster data.
+
+Let $p_i,x_i,$ and $y_i$ denote population count, coordinate component in $x$-axis, and coordinate component in $y$-axis that is contained in a cell $i$. Let also $u_i\text{ and } v_i$ as the zonal and meridional flow in the cell $i$. If there are $n$ cells of intersection, we know $p_i, x_i, y_i, u_i, \text{ and } v_i$ for $i=1,2,...,n$.
+
+In conclusion, the population-weighted average of each value is
+\[
+\bar{x}=\dfrac{\sum_{i=1}^{n}{p_i x_i}}{\sum_{i=1}^{n}{p_i}}, \quad \bar{y}=\dfrac{\sum_{i=1}^{n}{p_i y_i}}{\sum_{i=1}^{n}{p_i}}
+\]
+\[
+\bar{u}=\dfrac{\sum_{i=1}^{n}{p_i u_i}}{\sum_{i=1}^{n}{p_i}}, \quad \bar{v}=\dfrac{\sum_{i=1}^{n}{p_i v_i}}{\sum_{i=1}^{n}{p_i}}.
+\]
+
+\subsection{Setting of Graph}
+
+In this section, the components and parameters for graph $G_\psi$ are decided. Now, the coordinate for each country in $\mathbb{R}^2$ is defined. We assume that areas with bigger human population emit more pollution. By using the raster data of human population and the vector data of countries' boundary in Southeast Asia, the population-weighted centroid for each country can be found. Vertices of each country are visualized in Figure \ref{fig:centroid} where the centroid is compared between the population-weighted ones and the unweighted ones.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/centroids.png}
+    \caption{Representation points of countries in Southeast Asia. Each pair of points for a country is connected by a line.}
+    \label{fig:centroid}
+\end{figure}
+
+In Figure \ref{fig:graf}, the graph $\psi_G$ where each pair of countries in ASEAN are adjacent is visualized.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/graph.png}
+    \caption{Graph of countries in Southeast Asia}
+    \label{fig:graf}
+\end{figure}
+
+Next, the attribute of each vertex is defined. By using the raster data for wind vector, the value of $u_i^t$ and $v_i^t$ is computed by using the formula in Subsection \ref{subsection:spatial data}. Appendix \ref{appendix:wind vector} contains the visualization of the wind vector attribute for each country and month.
+
+The obtained wind vector can be validated by the existing theory. In Southeast Asia, Asian-Australian monsoon happens which distinguishes the change of wind direction in dry and wet season. The direction matches the obtained wind vector.
+
+From the obtained wind vectors, the wind speed for each country and month can be collected. The data size is 132 and the statistic of the data is summarized in Table \ref{table:sari numerik} and Figure \ref{fig:wind distribution}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/wind_speed_boxplot_hist.png}
+    \caption{Box-plot and histogram of wind speed for countries in Southeast Asia}
+    \label{fig:wind distribution}
+\end{figure}
+
+\begin{table}[h]
+    \caption{Statistics for Wind Speed Data}
+    \label{table:sari numerik}
+    \centering
+    \begin{tabular*}{\tblwidth}{@{}ll@{}}
+    \toprule
+    Statistic  & Value (m/s) \\
+    \midrule
+    Mean       & 3.5 \\
+    Median     & 3.2 \\
+    Quartile-1 & 2.0 \\
+    Quartile-3 & 4.7 \\
+    \bottomrule
+    \end{tabular*}
+\end{table}
+
+Lastly, the parameter for edges' weight can be decided. Based on the statistic, $s_{max}$ is set to be the third quartile of the data, that is 4.7 m/s. This value is assumed to represent the biggest speed that allows all pollution from initial country can be moved.
+
+The value of $d_{max}$ is set as the maximum value from the third smallest distance between two countries in Southeast Asia, that is 2,500 km. This value makes sure that the pollution from a country cannot be sent to a place that is too far and at least gets through two of the nearest countries. Finally, the value $\psi_{ij}^t$ is computed and as shown in Appendix \ref{appendix:pollution rate}.
+
+\section{Results}
+
+\subsection{Noncooperative Simulation}
+
+\paragraph{Without Punishment}
+We assume that the countries are focused only in minimizing their own cost. At first, we let there be no agreement between ASEAN countries in setting punishment rate towards countries' pollution flow. This is done by setting $\beta=1$. In Figure \ref{fig:noncooperative all}, we find that the pollution stock of each countries converge to 500 Mt in 33 months. Beside of Indonesia who experience a decrease of pollution stock, other countries experience a sharp increase from their initial condition.
+
+At the start of the simulation, most countries invest little in clean policy. Indonesia and Thailand are the exceptions. Both countries initially have relatively large pollution stock resulting in the need to decrease their pollution flow to decrease the environmental cost. In addition, Thailand receives a large amount of pollution stock from its near neighbors, such as Vietnam and Cambodia, in January and February.
+
+As time passes, all countries act more environmentally-friendly and the investment rate of each country stays above 0.5. When stability is reached, the investment rate of each country converge to different value for each month. In the long run, all countries invest more in clean policy when they receive more pollution stock from other countries. For example, Vietnam chooses high investment rate in April to July where Vietnam receive more pollution stock from other neighbor countries. On the other hand, it is interesting to note countries that receive little transferred pollution in most months invest less in the long run. For example, Indonesia and The Philippines consistently invest with the value less than 0.6. These two countries with large pollution stock at the start do not need to act as environmentally-friendly as the others since it is not impacted much by other countries' pollution.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures simulation/noncooperative all.png}
+    \caption{Noncooperative Game Without Punishment}
+    \label{fig:noncooperative all}
+\end{figure}
+
+\paragraph{Enabling Punishment in Pollution Cost}
+By the previous simulation, most countries' pollution stock increase when they are only minimizing their pollution cost. In hope to decrease the pollution stock of each country, we can set punishment factor which is governed by an external party. For the next simulations, we will set $\beta>1$ to represent the punishment factor in environment cost.
+
+To analyze the effect of the punishment, we define a parameter that denotes the sum of pollution stock for each country in the end of simulation:
+\begin{equation}
+    \xi_\beta(T) = \sum_{i\in\mathcal{N}}x_i(T)
+\end{equation}
+where $T$ is the duration of the simulation that is defined from the start. By using this parameter, we can study the effect of punishment by seeing the relationship between $\beta$ and $\xi_\beta(T)$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures simulation/punishment.png}
+    \caption{Effect of Punishment in Noncooperative Game for Short Duration of Time}
+    \label{fig:punishment}
+\end{figure}
+
+In Figure \ref{fig:punishment}, the relationship is portrayed by the graph where simulations are run for a short duration of simulation, 24 months, with different values of punishment rate. It is found that with little punishment, the sum of pollution stock for all countries are reduced exponentially. For example, by setting $\beta=2$, the sum of pollution stock is reduced by half compared to the situation without punishment. As the punishment rate is increased, the sum of pollution stock decreases. The smallest value of $\xi_\beta(T)$ is 627 Mt which is around value of Indonesia's initial pollution stock. This is reached when we set $\beta=13$. However, as the punishment rate is increased further, the sum of pollution stock increases.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures simulation/noncooperative all beta=40.png}
+    \caption{Noncooperative Game With Large Punishment Rate}
+    \label{fig:noncooperative all beta=40}
+\end{figure}
+
+In Figure \ref{fig:noncooperative all beta=40}, the simulation with $\beta=40$ is run until stability is reached. It is observed that the pollution stock of each country decreases slowly overtime until it reaches 12.4 Mt. However, the convergence takes a long time, that is more than 100 months. This implies that with expensive environmental cost, the sum of pollution stock might decreases slowly at the start of the simulation, but it converges to a small value in the long run. In fact, in Figure \ref{fig:punishment 2}, after 120 months, the sum of pollution stock for all countries can be reduced to 89 Mt with punishment rate $\beta=60$. As the punishment rate increases, the sum of pollution stock increases again.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures simulation/punishment 2.png}
+    \caption{Effect of Punishment in Noncooperative Game for Long Duration of Time}
+    \label{fig:punishment 2}
+\end{figure}
+
+\subsection{Imitation Simulation}
+
+In this section, we assume that the countries are imitating each other in deciding their investment rate. As stated by \citet{Schuller}, this behavior is interesting to be studied as an alternative for the noncooperative game. To reduce the pollution stock, enabling punishment is needed. On the other hand, it is unrealistic to hope the ASEAN countries can agree in such policy. By imitating others, each country still maintains their independence. To study the imitation behavior, we vary the initial phase of noncooperative game with short duration (4 months) and long duration (12 months) of the phase. We will also compare the results from when each country imitate other countries with and without any consideration of the neighbor country's successfulness.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.48\linewidth}
+    \includegraphics[width=\linewidth]{figures simulation/short basic.png}
+    \caption{}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.48\linewidth}
+    \includegraphics[width=\linewidth]{figures simulation/short advanced.png}
+    \caption{}
+\end{subfigure}
+\caption{Imitation Game of ASEAN Countries with Short Initial Phase of Noncooperative Game: (a) Basic imitation; (b) Advanced imitation.}
+\label{fig:imitation short}
+\end{figure}
+
+In Figure \ref{fig:imitation short}, the simulation for short initial phase of noncooperative game is shown. With both imitation behavior, the pollution stock of each country can converge to 0 Mt in the long run. In less than 12 months, all countries' investment rate converge to 0.6 when behaving basic imitation. On the other hand, when following advanced imitation, the investment rate converge to a bigger value, 0.64, after 24 months. Convergence of stock pollution is reached in 80 months when basic imitation is used, whereas it is reached in 64 months when advanced imitation is used. It can be inferred that quicker convergence in advanced imitation happens because all countries act more environmentally friendly in the long run. Several countries, such as Vietnam, can also avoid a sharp increase of pollution stock by behaving advanced imitation. This sharp increase can be observed when the countries transition from noncooperative initial phase to the imitation behavior.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.48\linewidth}
+    \includegraphics[width=\linewidth]{figures simulation/long basic.png}
+    \caption{}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.48\linewidth}
+    \includegraphics[width=\linewidth]{figures simulation/long advanced.png}
+    \caption{}
+\end{subfigure}
+\caption{Imitation Game of ASEAN Countries with Long Initial Phase of Noncooperative Game: (a) Basic imitation; (b) Advanced imitation.}
+\label{fig:imitation long}
+\end{figure}
+
+In Figure \ref{fig:imitation long}, the simulation results for long duration of initial phase are shown. Similarly, each country's pollution stock can converge to 0 Mt. With basic imitation, each country's investment rate converge to 0.631 after 20 months. On other hand, with advanced imitation, the investment rate converge to slightly bigger value, 0.639, after 30 months. The pollution stock of each country converges in 74 months when basic imitation is used, while it converges in 70 months when advanced imitation is used. By the slight increase of investment rate convergence value, several countries can also avoid big increase of pollution stock. For example, Singapore has maximum value of pollution stock 694 Mt when behaving basic imitation, while it is 564 Mt when behaving advanced imitation.
+
+\subsection{Cooperative Simulation}
+
+Here we are interested to see what will happen if all ASEAN countries can cooperate. Cooperation is constructed by assuming that all countries want to minimize a joint global pollution cost. We also assume that the diplomatic influence of a country which is defined in Equation \eqref{equation:diplomatic influence weight} affects the country's relative importance in the joint cost.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures simulation/cooperative diplomatic weight.png}
+    \caption{Cooperative Game with Diplomatic Influence of ASEAN Countries as Countries' Relative Importance}
+    \label{fig:cooperative}
+\end{figure}
+
+In Figure \ref{fig:cooperative}, the simulation of the cooperative game is shown. It is interesting to note that at the start, only four countries with largest initial pollution stock act environmentally-friendly. These countries experience a decrease of pollution stock, while other countries' pollution stock increases until stability is reached.
+
+By observing the periodic pattern of pollution stock and investment rate value, the system stability is reached after around 10 months. Unlike the previous simulations, the pollution stock of each country does not converge to a single number, but the value is periodic overtime. In addition, all countries' pollution stock converge to a value that is smaller than when they are acting noncooperatively. The maximum value of pollution stock is 480 Mt, while another country can experience a sharp decrease of pollution stock until 200 Mt.
+
+It is also interesting observe the joint global cost that all countries pay throughout the time in Figure \ref{fig:global cost}. The joint cost is increasing at the start until it reaches stability after 4--5 months of the simulation. When stability is reached, it can be inferred that the joint cost is lower in wet season (Dec-Jan-Feb), while it is higher in dry season (Jun-Jul-Aug).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures simulation/cooperative global cost value (one method).png}
+    \caption{Joint Global Cost Throughout The Simulation}
+    \label{fig:global cost}
+\end{figure}
+
+\section{Conclusion}
+
+When behaving noncooperatively, pollution stock of each country converges to a single value. Without punishment, most countries' pollution stock increases until it reaches its equilibrium point 500 Mt after 33 months. In addition, after allowing punishment to countries' pollution flow, the pollution stock can be reduced significantly. For example, a small increase of the punishment rate ($\beta=2$) can reduce each country's pollution stock by half, 250 Mt, after 24 months.
+
+To allow each country's independence, we let ASEAN countries to imitate each other. It is found that by any variety of imitation, each country's pollution stock can decrease to 0 Mt after a long period of time, which is 64--80 months. By comparing two different initial phase duration, the advanced imitation behavior ensures a quicker convergence of pollution stock. This happens because the investment rate of each country converges to a larger number. Aside from the quicker convergence time, this helps several countries to avoid sharp increases of their pollution stock. It can be concluded that the advanced imitation behavior is more robust in handling different initial phases. The imitation behavior is superior to the noncooperative by maintaining countries' independence, while ensuring that pollution stock of each country converges to 0 Mt after at least 64 months.
+
+Lastly, we assume that all ASEAN countries can cooperate. The system stability is reached quicker by 70\% than the noncooperative behavior without punishment. The pollution stock of each country is ensured to be lower than the case of noncooperative game without punishment. Some country can even reduce their pollution stock by 50\% at some months. This implies that the cooperative game is a good alternative than the noncooperative game. Without setting punishment rate, ASEAN countries can still reach a better situation than the noncooperative game. Nonetheless, the cooperative game is still inferior to the imitation game which allows each country to reduce their pollution stock to 0 Mt.
+
+\printcredits
+\bibliographystyle{model1-num-names}
+% \bibliographystyle{cas-model2-names}
+\bibliography{references}
+
+%% Appendices
+\appendix
+
+\section{Visualization of Monthly Average Wind Vector} \label{appendix:wind vector}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/wind_vector.png}
+    \caption*{}
+    \label{fig:wind vector}
+\end{figure}
+
+\section{The Value of Transferred Pollution Rate} \label{appendix:pollution rate}
+
+Let the value in row $i$ and column $j$ of matrix $\psi^t$ denotes the value of parameter $\psi_{ij}^t$.
+
+\begin{scriptsize}
+    
+\textbf{Matrix $\psi^{0}$ (January)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.32\\
+
+0.00 & 0.00 & 0.67 & 0.14 & 0.00 & 0.12 & 0.44 & 0.43 & 0.41 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.33 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.73 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.09 & 0.40 & 0.09 & 0.18 & 0.00 & 0.06 & 0.00 & 0.32 & 0.21 & 0.60 & 0.00\\
+
+0.20 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.51 & 0.22 & 0.00 & 0.22 & 0.26 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.13 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.31 & 0.16 & 0.18 & 0.51 & 0.00 & 0.47 & 0.00 & 0.27 & 0.10 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{1}$ (February)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.31\\
+
+0.00 & 0.00 & 0.41 & 0.01 & 0.00 & 0.01 & 0.33 & 0.18 & 0.36 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.30 & 0.00 & 0.13 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.63 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.08 & 0.41 & 0.09 & 0.18 & 0.00 & 0.06 & 0.00 & 0.33 & 0.21 & 0.59 & 0.00\\
+
+0.25 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.39 & 0.06 & 0.00 & 0.07 & 0.23 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.32 & 0.15 & 0.17 & 0.50 & 0.00 & 0.47 & 0.00 & 0.26 & 0.10 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{2}$ (March)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.15\\
+
+0.00 & 0.00 & 0.20 & 0.00 & 0.00 & 0.00 & 0.28 & 0.00 & 0.39 & 0.00 & 0.00\\
+
+0.00 & 0.09 & 0.00 & 0.00 & 0.00 & 0.00 & 0.29 & 0.00 & 0.33 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.34 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.08 & 0.42 & 0.09 & 0.17 & 0.00 & 0.06 & 0.00 & 0.33 & 0.22 & 0.56 & 0.00\\
+
+0.17 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.08 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.13 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.39 & 0.00 & 0.00 & 0.00 & 0.28 & 0.00 & 0.22 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.05 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.17 & 0.11 & 0.12 & 0.31 & 0.00 & 0.29 & 0.00 & 0.18 & 0.07 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{3}$ (April)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.01 & 0.01 & 0.07 & 0.00 & 0.09 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.17 & 0.00 & 0.32 & 0.00 & 0.00\\
+
+0.00 & 0.23 & 0.00 & 0.00 & 0.01 & 0.00 & 0.19 & 0.00 & 0.40 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.02 & 0.00 & 0.00 & 0.13 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.06 & 0.34 & 0.07 & 0.14 & 0.00 & 0.05 & 0.00 & 0.27 & 0.18 & 0.43 & 0.00\\
+
+0.06 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.14 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.04 & 0.22 & 0.00 & 0.00\\
+
+0.00 & 0.21 & 0.29 & 0.00 & 0.00 & 0.00 & 0.25 & 0.00 & 0.33 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.08 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.07 & 0.10 & 0.09 & 0.19 & 0.00 & 0.16 & 0.00 & 0.13 & 0.06 & 0.00 & 0.00\\
+
+0.35 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.20 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{4}$ (May)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.03 & 0.03 & 0.25 & 0.00 & 0.30 & 0.00 & 0.08 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.15 & 0.00 & 0.00 & 0.00 & 0.03 & 0.00 & 0.00\\
+
+0.00 & 0.68 & 0.00 & 0.00 & 0.06 & 0.00 & 0.00 & 0.33 & 0.70 & 0.12 & 0.00\\
+
+0.00 & 0.16 & 0.08 & 0.00 & 0.06 & 0.00 & 0.02 & 0.16 & 0.10 & 0.20 & 0.00\\
+
+0.00 & 0.11 & 0.02 & 0.02 & 0.00 & 0.01 & 0.00 & 0.07 & 0.06 & 0.01 & 0.00\\
+
+0.00 & 0.19 & 0.17 & 0.35 & 0.02 & 0.00 & 0.04 & 0.24 & 0.13 & 0.17 & 0.00\\
+
+0.00 & 0.30 & 0.06 & 0.00 & 0.00 & 0.00 & 0.00 & 0.12 & 0.45 & 0.00 & 0.00\\
+
+0.00 & 0.66 & 0.00 & 0.00 & 0.18 & 0.00 & 0.00 & 0.00 & 0.37 & 0.10 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.10 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.02 & 0.00 & 0.00 & 0.14 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00\\
+
+0.47 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.25 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{5}$ (June)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.04 & 0.03 & 0.30 & 0.00 & 0.35 & 0.00 & 0.10 & 0.00 & 0.03 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.37 & 0.00 & 0.00 & 0.00 & 0.00 & 0.17 & 0.00\\
+
+0.02 & 0.93 & 0.00 & 0.01 & 0.09 & 0.00 & 0.00 & 0.66 & 0.76 & 0.25 & 0.00\\
+
+0.09 & 0.26 & 0.07 & 0.00 & 0.13 & 0.00 & 0.00 & 0.25 & 0.15 & 0.48 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.34 & 0.30 & 0.63 & 0.04 & 0.00 & 0.07 & 0.43 & 0.23 & 0.34 & 0.00\\
+
+0.00 & 0.42 & 0.13 & 0.00 & 0.00 & 0.00 & 0.00 & 0.20 & 0.62 & 0.00 & 0.00\\
+
+0.04 & 0.66 & 0.00 & 0.00 & 0.32 & 0.00 & 0.00 & 0.00 & 0.10 & 0.42 & 0.00\\
+
+0.00 & 0.28 & 0.00 & 0.00 & 0.17 & 0.00 & 0.00 & 0.00 & 0.00 & 0.08 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.41 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.04\\
+
+0.47 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.24 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{6}$ (July)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.05 & 0.04 & 0.39 & 0.00 & 0.44 & 0.00 & 0.13 & 0.00 & 0.07 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.38 & 0.00 & 0.00 & 0.00 & 0.00 & 0.21 & 0.00\\
+
+0.02 & 0.93 & 0.00 & 0.08 & 0.09 & 0.01 & 0.00 & 0.73 & 0.70 & 0.28 & 0.00\\
+
+0.08 & 0.34 & 0.11 & 0.00 & 0.15 & 0.00 & 0.01 & 0.32 & 0.19 & 0.56 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.44 & 0.41 & 0.81 & 0.04 & 0.00 & 0.10 & 0.56 & 0.30 & 0.39 & 0.00\\
+
+0.00 & 0.45 & 0.17 & 0.00 & 0.00 & 0.00 & 0.00 & 0.24 & 0.65 & 0.00 & 0.00\\
+
+0.08 & 0.57 & 0.00 & 0.00 & 0.33 & 0.00 & 0.00 & 0.00 & 0.00 & 0.48 & 0.00\\
+
+0.00 & 0.32 & 0.00 & 0.00 & 0.17 & 0.00 & 0.00 & 0.00 & 0.00 & 0.10 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.58 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.07\\
+
+0.47 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.25 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{7}$ (August)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.05 & 0.04 & 0.40 & 0.00 & 0.45 & 0.00 & 0.14 & 0.00 & 0.08 & 0.00\\
+
+0.01 & 0.00 & 0.00 & 0.00 & 0.41 & 0.00 & 0.00 & 0.00 & 0.00 & 0.29 & 0.00\\
+
+0.03 & 0.92 & 0.00 & 0.16 & 0.09 & 0.07 & 0.00 & 0.79 & 0.62 & 0.31 & 0.00\\
+
+0.11 & 0.32 & 0.08 & 0.00 & 0.15 & 0.00 & 0.00 & 0.30 & 0.18 & 0.59 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.44 & 0.42 & 0.82 & 0.04 & 0.00 & 0.10 & 0.57 & 0.31 & 0.38 & 0.00\\
+
+0.00 & 0.52 & 0.27 & 0.03 & 0.00 & 0.00 & 0.00 & 0.32 & 0.71 & 0.00 & 0.00\\
+
+0.10 & 0.51 & 0.00 & 0.00 & 0.33 & 0.00 & 0.00 & 0.00 & 0.00 & 0.51 & 0.00\\
+
+0.00 & 0.25 & 0.00 & 0.00 & 0.11 & 0.00 & 0.00 & 0.00 & 0.00 & 0.09 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.67 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.08\\
+
+0.47 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.24 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{8}$ (September)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.05 & 0.04 & 0.38 & 0.00 & 0.44 & 0.00 & 0.13 & 0.00 & 0.03 & 0.00\\
+
+0.01 & 0.00 & 0.00 & 0.00 & 0.16 & 0.00 & 0.00 & 0.00 & 0.00 & 0.15 & 0.00\\
+
+0.02 & 0.40 & 0.00 & 0.09 & 0.04 & 0.05 & 0.00 & 0.37 & 0.26 & 0.15 & 0.00\\
+
+0.07 & 0.27 & 0.08 & 0.00 & 0.12 & 0.00 & 0.01 & 0.26 & 0.16 & 0.46 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.38 & 0.39 & 0.70 & 0.03 & 0.00 & 0.10 & 0.51 & 0.27 & 0.25 & 0.00\\
+
+0.00 & 0.27 & 0.12 & 0.00 & 0.00 & 0.00 & 0.00 & 0.15 & 0.39 & 0.00 & 0.00\\
+
+0.10 & 0.27 & 0.00 & 0.07 & 0.23 & 0.03 & 0.00 & 0.00 & 0.00 & 0.39 & 0.00\\
+
+0.00 & 0.00 & 0.22 & 0.02 & 0.00 & 0.02 & 0.27 & 0.01 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.55 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.08\\
+
+0.46 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 & 0.23 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{9}$ (October)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.03 & 0.03 & 0.26 & 0.00 & 0.32 & 0.00 & 0.08 & 0.00 & 0.00 & 0.00\\
+
+0.01 & 0.00 & 0.63 & 0.22 & 0.00 & 0.18 & 0.35 & 0.50 & 0.26 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.27 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.09 & 0.08 & 0.00 & 0.00 & 0.06 & 0.00 & 0.00 & 0.06 & 0.03 & 0.23 & 0.00\\
+
+0.03 & 0.10 & 0.02 & 0.05 & 0.00 & 0.02 & 0.00 & 0.09 & 0.05 & 0.20 & 0.00\\
+
+0.01 & 0.17 & 0.13 & 0.33 & 0.02 & 0.00 & 0.03 & 0.21 & 0.11 & 0.23 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.01 & 0.00 & 0.47 & 0.26 & 0.00 & 0.26 & 0.23 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.64 & 0.04 & 0.00 & 0.05 & 0.78 & 0.01 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.44 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.07\\
+
+0.46 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 & 0.23 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{10}$ (November)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.01 & 0.01 & 0.09 & 0.00 & 0.12 & 0.00 & 0.03 & 0.00 & 0.00 & 0.00\\
+
+0.01 & 0.00 & 0.93 & 0.28 & 0.00 & 0.24 & 0.55 & 0.70 & 0.44 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.40 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.30 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.09 & 0.41 & 0.09 & 0.18 & 0.00 & 0.06 & 0.00 & 0.33 & 0.21 & 0.59 & 0.00\\
+
+0.16 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.63 & 0.28 & 0.00 & 0.29 & 0.31 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.47 & 0.00 & 0.00 & 0.00 & 0.68 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.01 & 0.00 & 0.00 & 0.11 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00\\
+
+0.28 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 & 0.14 & 0.00
+
+\end{bmatrix}
+\]
+
+\textbf{Matrix $\psi^{11}$ (December)}
+\[
+\begin{bmatrix}
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.05 & 0.22\\
+
+0.01 & 0.00 & 0.93 & 0.30 & 0.00 & 0.25 & 0.54 & 0.72 & 0.42 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.37 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.03 & 0.00 & 0.00 & 0.00 & 0.00 & 0.66 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.09 & 0.41 & 0.09 & 0.18 & 0.00 & 0.06 & 0.00 & 0.33 & 0.21 & 0.60 & 0.00\\
+
+0.35 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.61 & 0.30 & 0.00 & 0.30 & 0.30 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.26 & 0.00 & 0.00 & 0.00 & 0.54 & 0.00 & 0.00 & 0.00 & 0.00\\
+
+0.00 & 0.11 & 0.08 & 0.12 & 0.00 & 0.10 & 0.00 & 0.13 & 0.07 & 0.00 & 0.00\\
+
+0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00
+
+\end{bmatrix}
+\]
+
+\end{scriptsize}
+
+\end{document}
