@@ -364,13 +364,13 @@ To create the graph of network for countries in Southeast Asia, several spatial 
 
 The used spatial data are listed.
 \begin{enumerate}
-\item \textbf{Vector data for the ten countries in ASEAN} \\
+\item \textbf{Vector data for the eleven countries in Southeast Asia} \\
 The data is extracted from the data of countries' boundary in the world. \citep{NaturalEarth}. In this data, each country is represented as a polygon.
 
-\item \textbf{Raster data of human population estimation in ASEAN in 2020} \\
+\item \textbf{Raster data of human population estimation in Southeast Asia in 2020} \\
 The data is extracted from the population count of the world \citep{RasterPopulation}. Each cell of the data has the size of $30\times30$ km and it contains the population count in the cell.
 
-\item \textbf{Raster data of zonal and meridional flow in ASEAN} \\
+\item \textbf{Raster data of zonal and meridional flow in Southeast Asia} \\
 The data is extracted from the monthly climatology data in the world \citep{RasterWind}. The wind data is taken at the atmosphere height of 850 mb and for the twelve months. The data is the average of the monthly wind velocity over 1950--2010. In each cell, the velocity is in the unit of m/s. The data is taken at 850 mb by considering that the furthest distance between two countries in the graph is $3.16\times 10^6$ m. The meteorological phenomena that can reach that distance is synoptic scale \citep{Synoptic}. This phenomena is influenced by the activity at the height of 850 mb \citep{Weather}.
 \end{enumerate}
 
@@ -469,52 +469,45 @@ The value of $d_{max}$ is set as the maximum value from the third smallest dista
 \subsection{Noncooperative Simulation}
 
 \paragraph{Without Punishment}
-We assume that the countries are focused only in minimizing their own cost. At first, we let there be no agreement between ASEAN countries in setting punishment rate towards countries' pollution flow. This is done by setting $\beta=1$. In Figure \ref{fig:noncooperative all}, we find that the pollution stock of each countries converge to 500 Mt in 33 months. Beside of Indonesia who experience a decrease of pollution stock, other countries experience a sharp increase from their initial condition.
+We assume that the countries are focused only in minimizing their own cost. At first, we let there be no agreement between Southeast Asian countries in setting punishment rate towards countries' pollution flow. This is done by setting $\beta=1$. In Figure \ref{fig:noncooperative all}, we find that the pollution stock of each countries converge to 500 Mt in three years. Beside of Indonesia who experience a decrease of pollution stock, other countries experience a sharp increase from their initial condition.
 
 At the start of the simulation, most countries invest little in clean policy. Indonesia and Thailand are the exceptions. Both countries initially have relatively large pollution stock resulting in the need to decrease their pollution flow to decrease the environmental cost. In addition, Thailand receives a large amount of pollution stock from its near neighbors, such as Vietnam and Cambodia, in January and February.
 
-As time passes, all countries act more environmentally-friendly and the investment rate of each country stays above 0.5. When stability is reached, the investment rate of each country converge to different value for each month. In the long run, all countries invest more in clean policy when they receive more pollution stock from other countries. For example, Vietnam chooses high investment rate in April to July where Vietnam receive more pollution stock from other neighbor countries. On the other hand, it is interesting to note countries that receive little transferred pollution in most months invest less in the long run. For example, Indonesia and The Philippines consistently invest with the value less than 0.6. These two countries with large pollution stock at the start do not need to act as environmentally-friendly as the others since it is not impacted much by other countries' pollution.
+As time passes, all countries act more environmentally-friendly and the investment rate of each country stays above 0.5. When stability is reached, the investment rate of each country converge to different value for each month. In the long run, all countries invest more in clean policy when they receive more pollution stock from other countries. For example, Vietnam chooses high investment rate in April to July where Vietnam receive more pollution stock from other neighbor countries. On the other hand, it is interesting to note countries that receive little transferred pollution in most months invest less in the long run. For example, Indonesia and Philippines consistently invest with the value less than 0.7. These two countries with large pollution stock at the start do not need to act as environmentally-friendly as the others since it is not impacted much by other countries' pollution.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures simulation/noncooperative all.png}
-    \caption{Noncooperative Game Without Punishment}
+    \includegraphics[width=\linewidth]{figures simulation/noncooperative.png}
+    \caption{Noncooperative game without punishment ($\beta=1$)}
     \label{fig:noncooperative all}
 \end{figure}
 
 \paragraph{Enabling Punishment in Pollution Cost}
-By the previous simulation, most countries' pollution stock increase when they are only minimizing their pollution cost. In hope to decrease the pollution stock of each country, we can set punishment factor which is governed by an external party. For the next simulations, we will set $\beta>1$ to represent the punishment factor in environment cost.
+By the previous simulation, most countries' pollution stock increase when they are only minimizing their pollution cost. In hope to decrease the pollution stock of each country, we can set punishment factor which is governed by an external party, such as ASEAN. For the next simulations, we will set $\beta>1$ to represent the punishment factor in environment cost.
 
 To analyze the effect of the punishment, we define a parameter that denotes the sum of pollution stock for each country in the end of simulation:
 \begin{equation}
     \xi_\beta(T) = \sum_{i\in\mathcal{N}}x_i(T)
 \end{equation}
-where $T$ is the duration of the simulation that is defined from the start. By using this parameter, we can study the effect of punishment by seeing the relationship between $\beta$ and $\xi_\beta(T)$.
+where $T$ is the duration of the simulation, defined prior to the simulation. By using this parameter, we can study the effect of punishment by studying the relationship between $\beta$ and $\xi_\beta(T)$.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures simulation/punishment.png}
-    \caption{Effect of Punishment in Noncooperative Game for Short Duration of Time}
+    \includegraphics[width=0.9\linewidth]{figures simulation/punishment_effect.png}
+    \caption{Effect of punishment in noncooperative game}
     \label{fig:punishment}
 \end{figure}
 
-In Figure \ref{fig:punishment}, the relationship is portrayed by the graph where simulations are run for a short duration of simulation, 24 months, with different values of punishment rate. It is found that with little punishment, the sum of pollution stock for all countries are reduced exponentially. For example, by setting $\beta=2$, the sum of pollution stock is reduced by half compared to the situation without punishment. As the punishment rate is increased, the sum of pollution stock decreases. The smallest value of $\xi_\beta(T)$ is 627 Mt which is around value of Indonesia's initial pollution stock. This is reached when we set $\beta=13$. However, as the punishment rate is increased further, the sum of pollution stock increases.
+In Figure \ref{fig:punishment}, the relationship is portrayed by the graph where simulations are run for two different durations, short and long, with varying punishment rates. For a short duration of 24 months, it is found that with little punishment, the sum of pollution stock for all countries are reduced exponentially. For example, by setting $\beta=3$, the sum of pollution stock is a third of the sum without punishment. As the punishment rate is increased, the sum of pollution stock decreases. The smallest value of $\xi_\beta(T)$ is 670 Mt which is around value of Indonesia's initial pollution stock. This is reached when we set $\beta=13$. However, as the punishment rate is increased further, the sum of pollution stock increases.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures simulation/noncooperative all beta=40.png}
-    \caption{Noncooperative Game With Large Punishment Rate}
-    \label{fig:noncooperative all beta=40}
+    \includegraphics[width=\linewidth]{figures simulation/noncooperative beta=50.png}
+    \caption{Noncooperative game with large punishment rate ($\beta=50$)}
+    \label{fig:noncooperative_large_punishment}
 \end{figure}
 
-In Figure \ref{fig:noncooperative all beta=40}, the simulation with $\beta=40$ is run until stability is reached. It is observed that the pollution stock of each country decreases slowly overtime until it reaches 12.4 Mt. However, the convergence takes a long time, that is more than 100 months. This implies that with expensive environmental cost, the sum of pollution stock might decreases slowly at the start of the simulation, but it converges to a small value in the long run. In fact, in Figure \ref{fig:punishment 2}, after 120 months, the sum of pollution stock for all countries can be reduced to 89 Mt with punishment rate $\beta=60$. As the punishment rate increases, the sum of pollution stock increases again.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\linewidth]{figures simulation/punishment 2.png}
-    \caption{Effect of Punishment in Noncooperative Game for Long Duration of Time}
-    \label{fig:punishment 2}
-\end{figure}
+In Figure \ref{fig:noncooperative_large_punishment}, the simulation with $\beta=50$ is run until stability is reached. It is observed that the pollution stock of each country decreases slowly overtime until it reaches 10 Mt. However, the convergence takes a long time, that is more than 100 months. This implies that with expensive environmental cost, the sum of pollution stock might decreases slowly at the start of the simulation, but it converges to a small value in the long run. In fact, in Figure \ref{fig:punishment}, after 120 months, the sum of pollution stock for all countries can be reduced to 98 Mt with punishment rate $\beta=64$. As the punishment rate increases, the sum of pollution stock increases again.
 
 \subsection{Imitation Simulation}
 
@@ -556,7 +549,7 @@ In Figure \ref{fig:imitation long}, the simulation results for long duration of 
 
 \subsection{Cooperative Simulation}
 
-Here we are interested to see what will happen if all ASEAN countries can cooperate. Cooperation is constructed by assuming that all countries want to minimize a joint global pollution cost. We also assume that the diplomatic influence of a country which is defined in Equation \eqref{equation:diplomatic influence weight} affects the country's relative importance in the joint cost.
+Here we are interested to see what will happen if all Southeast Asian countries can cooperate. Cooperation is constructed by assuming that all countries want to minimize a joint global pollution cost. We also assume that the diplomatic influence of a country which is defined in Equation \eqref{equation:diplomatic influence weight} affects the country's relative importance in the joint cost.
 
 \begin{figure}[h]
     \centering
