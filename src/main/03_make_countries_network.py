@@ -103,17 +103,28 @@ if __name__ == '__main__':
     """ 3.3. Plot wind vectors """
 
     # Plot vertex
-    fig, axs = plt.subplots(4, 3, figsize=(10,10),tight_layout=True)
-    for i in range (4):
-        for j in range (3):
-            gdf_countries.plot(ax = axs[i][j], cmap = "pink") # cmap pink or tab10
-            centroids_population.plot(ax = axs[i][j], marker = 'o', color = 'blue', markersize = 20)
+    # fig, axs = plt.subplots(4, 3, figsize=(8, 12),tight_layout=True)
+    # for i in range (4):
+    #     for j in range (3):
+    #         gdf_countries.boundary.plot(ax = axs[i][j], linewidth=0.5, color='k') # cmap pink or tab10
+    #         centroids_population.plot(ax = axs[i][j], marker = 'o', color = 'gray', markersize = 20)
+    # ax_id_list = [[0,0], [0,1], [0,2],
+    #             [1,0], [1,1], [1,2],
+    #             [2,0], [2,1], [2,2],
+    #             [3,0], [3,1], [3,2]]
 
-    
-    ax_id_list = [[0,0], [0,1], [0,2],
-                [1,0], [1,1], [1,2],
-                [2,0], [2,1], [2,2],
-                [3,0], [3,1], [3,2]]
+    fig, axs = plt.subplots(6, 2, figsize=(8, 18),tight_layout=True)
+    for i in range (6):
+        for j in range (2):
+            gdf_countries.boundary.plot(ax = axs[i][j], linewidth=0.5, color='k') # cmap pink or tab10
+            centroids_population.plot(ax = axs[i][j], marker = 'o', color = 'k', markersize = 24)
+    ax_id_list = [[0,0], [0,1],
+                [1,0], [1,1],
+                [2,0], [2,1],
+                [3,0], [3,1],
+                [4,0], [4,1],
+                [5,0], [5,1]]
+
     time_int_strings = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
     # Iterate over each month
@@ -126,18 +137,19 @@ if __name__ == '__main__':
             qv = ax.quiver(centroids_population[i].x, centroids_population[i].y,
                     wind_vector_per_month_list[time_int_id][i][0],
                     wind_vector_per_month_list[time_int_id][i][1],
-                    color='darkturquoise') # white
+                    color='tab:red') # white
             # Add legend of the quiver
             legend_arrow_length = 1
-            qk = ax.quiverkey(qv, 1, 1, legend_arrow_length, rf'{legend_arrow_length} m/s', labelpos='E',
+            qk = ax.quiverkey(qv, 1, 1, legend_arrow_length, rf'{legend_arrow_length} m/s', labelpos='W',
                    coordinates='axes')
         # Modify plotting style
         ax.axis("off")
-        ax.set_title(time_int_strings[time_int_id], fontsize=10)
+        ax.set_title(time_int_strings[time_int_id], fontsize=14)
     plt.tight_layout()
     plt.savefig('./output/figs/network.png', bbox_inches='tight')
 
-    """ 3.4. Save wind vectors values """
+
+    # """ 3.4. Save wind vectors values """
     np.save("./output/vars/wind_vector_per_month_list.npy", wind_vector_per_month_list)
 
     """ 4.1. Compute psi_{ij} or graph's weight """

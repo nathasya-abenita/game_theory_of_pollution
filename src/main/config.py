@@ -43,6 +43,7 @@ MU_LIST = dipl_inf / np.sum(dipl_inf)
 #            57, 22.15, 34.95, 28.45, 32.4]
 # MU_LIST = dipl_inf / np.sum(dipl_inf)
 
+# General setting
 PSI_LIST = np.load("./output/vars/psi_list.npy")
 STEP_SIZE = 0.01
 BETA = 1 

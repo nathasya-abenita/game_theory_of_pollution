@@ -11,6 +11,6 @@ if __name__ == "__main__" :
 
     # Simulate cooperative game, then plot
     t_list, u_list_final, x_list_final, cost_list = game.solve_diff_game_coop(duration=T, step_size=STEP_SIZE)
-    game.display_diff_game(t_list, u_list_final, x_list_final, labels=COUNTRY_NAMES, filename='sim/coop.png')
+    game.display_diff_game(t_list, u_list_final, x_list_final, labels=COUNTRY_NAMES, filename='sim/coop.png', show_legend=True)
     game.display_joint_cost(t_list, cost_list, filename='sim/coop_joint_cost.png')
     

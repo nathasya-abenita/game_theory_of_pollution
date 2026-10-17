@@ -19,11 +19,11 @@ mpl.rcParams.update({
 
     # --- Fonts ---
     # "font.family": "serif",
-    "font.size": 10,
-    "axes.labelsize": 10,
-    "legend.fontsize": 9,
-    "xtick.labelsize": 9,
-    "ytick.labelsize": 9,
+    # "font.size": 10,
+    # "axes.labelsize": 10,
+    # "legend.fontsize": 9,
+    # "xtick.labelsize": 9,
+    # "ytick.labelsize": 9,
 
     # --- Axes ---
     "axes.linewidth": 1.0,
@@ -401,7 +401,7 @@ class PollutionGame:
             print('Minimization with L-BFGS-B failed!')
 
     def display_diff_game(self, t_list, u_list_final, x_list_final, labels, filename, 
-                       eq_line=True, axs=None, savefig=True, sci_not=False, show_legend=False):
+                       eq_line=True, axs=None, savefig=True, sci_not=False, show_legend=False, legend_ncol=6):
         """
         Plots state variables x(t) and decision variables u(t) for a single simulation.
         Serves as both a standalone plotter and a builder for multi-panel subplots.
@@ -409,7 +409,7 @@ class PollutionGame:
         # 1. Only clear figure if creating a standalone single plot
         if axs is None:
             plt.clf()
-            fig, axs = plt.subplots(2, 1, sharex=True, figsize=(7, 6))
+            fig, axs = plt.subplots(2, 1, sharex=True, figsize=(7, 8))
         else:
             fig = axs[0].get_figure()
 
@@ -418,25 +418,29 @@ class PollutionGame:
         # 2. State variables x_i(t)
         for i in range(self.n):
             axs[0].plot(t_list, x_list_final[i, :], color=CUSTOM_CMAP[i], linestyle=linestyles[i], label=labels[i])
-        axs[0].set_ylabel("$x_i(t)$ [$10^2$ Mt]", fontsize=11)
+        axs[0].set_ylabel("$x_i(t)$ [$10^2$ Mt]", fontsize=12)
         axs[0].grid(True, linestyle=":", linewidth=0.4, alpha=0.4)
 
         # Activate scientific notation for pollution stock if requested
         if sci_not:
-            axs[0].ticklabel_format(axis='y', style='sci', scilimits=(3, 3), useMathText=True)
+            axs[0].ticklabel_format(axis='y', style='sci', scilimits=(2, 2), useMathText=True)
 
         # Optional legend for standalone single plot
         if show_legend:
-            axs[0].legend(bbox_to_anchor=(1.02, 1), loc="upper left", frameon=True)
+            handles, leg_labels = axs[0].get_legend_handles_labels()
+            fig.legend(handles, leg_labels, bbox_to_anchor=(0.5, -0.05), loc="lower center", frameon=True, ncol=legend_ncol,
+                          facecolor='white', edgecolor='0.8', fontsize=10)
 
+            # Adjust bottom margin so legend does not overlap plots
+            plt.tight_layout(rect=[0, 0.05, 1, 1])
         # 3. Decision variables u_i(t)
         for i in range(self.n):
             axs[1].plot(t_list, u_list_final[i, :], color=CUSTOM_CMAP[i], linestyle=linestyles[i])
         axs[1].set_ylim(0, 1)
         axs[1].set_xlim(0, t_list[-1])
         axs[1].grid(True, linestyle=":", linewidth=0.4, alpha=0.4)
-        axs[1].set_ylabel("$u_i(t)$", fontsize=11)
-        axs[1].set_xlabel("$t$ [month]", fontsize=11)
+        axs[1].set_ylabel("$u_i(t)$", fontsize=12)
+        axs[1].set_xlabel("$t$ [month]", fontsize=12)
 
         # Add equilibrium reference line u = 0.5
         if eq_line:
@@ -445,14 +449,13 @@ class PollutionGame:
         # 4. Save plot or return axes
         if savefig:
             filename = f'./output/figs/{filename}'
-            plt.tight_layout()
             plt.savefig(filename, bbox_inches='tight', dpi=300)
         else:
             return axs
 
     def display_diff_game_side_by_side(self, sim1_data, sim2_data, labels, filename, 
                                    titles=("Basic Imitation", "Advanced Imitation"),
-                                   eq_line=True, sci_not=False, show_legend=True, legend_ncol=5):
+                                   eq_line=True, sci_not=False, show_legend=True, legend_ncol=6):
         """
         Plots two game simulations side-by-side in a 2x2 grid with an optional shared bottom legend.
         
@@ -471,7 +474,7 @@ class PollutionGame:
         t2, u2, x2 = sim2_data
 
         # 1. Initialize 2x2 grid (Row 0: x(t), Row 1: u(t); Col 0: Sim 1, Col 1: Sim 2)
-        fig, axs = plt.subplots(2, 2, figsize=(12, 6.5))
+        fig, axs = plt.subplots(2, 2, figsize=(7, 8))
 
         # 2. Render Left Column (Simulation 1)
         self.display_diff_game(t1, u1, x1, labels, filename="", 
@@ -503,7 +506,7 @@ class PollutionGame:
                 frameon=True,
                 facecolor='white',
                 edgecolor='0.8',
-                fontsize=9.5
+                fontsize=10
             )
             # Adjust bottom margin so legend does not overlap plots
             plt.tight_layout(rect=[0, 0.05, 1, 1])
@@ -519,9 +522,9 @@ class PollutionGame:
         filename = f'./output/figs/{filename}'
 
         # Plot
-        plt.clf()
+        plt.figure(figsize=(6, 4))
         plt.plot(t_list, cost_list)
-        plt.xlabel("$t$ [month]"); plt.ylabel("$c(t)$")
+        plt.xlabel("$t$ [month]",  fontsize=12); plt.ylabel("$c(t)$",  fontsize=12,)
         plt.grid(True, linestyle=":", linewidth=0.4, alpha=0.4)
 
         # Save plot
