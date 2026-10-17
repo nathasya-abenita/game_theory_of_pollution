@@ -183,7 +183,7 @@ First, the fixed points of the system are identified, which are the values of $x
 
 if $u_i^*\neq0.5$ with $x_j^*, u_i^*, \text{ and }, u_j^*$ denotes the fixed point for country $j$'s pollution stock, optimal investment by country $i$, and optimal investment by country $j$. On the other hand, note that when a country $i\in\mathcal{N}$ does not receive pollution from other countries and chooses investment $u_i^*=\frac{1}{2}$, $x_i(t)$ reaches its stability.
 
-Now, we check the linear stability of the fixed points. Note that $\dfrac{d\dot{x_i}(t)}{dx_i(t)}=1-2u_i(t)$. The value of the derivative is negative when $u_i(t)>\frac{1}{2}$ and positive when $u_i(t)<\frac{1}{2}$. Based on the linear stability theory, fixed point $x_i^*(t)$ is linearly stable when $\dfrac{d\dot{x_i}(t)}{dx_i(t)}<0$ \citep{Strogatz}. By this, when $u_i^*(t)>\frac{1}{2}$ for each $i\in\mathcal{N}$, there is a stable fixed point of the system. In our simulation, we are interested to see whether the value of $u_i^*(t)$ stays more than $\frac{1}{2}$ to ensure the stability of each country's pollution stock.
+Next, we evaluate the linear stability of the system's fixed points. The partial derivative of country $i$'s pollution growth rate with respect to its own pollution stock is given by $\dfrac{\partial \dot{x}_i(t)}{\partial x_i(t)} = 1 - 2u_i(t)$. This derivative is strictly negative when $u_i(t) > \frac{1}{2}$ and positive when $u_i(t) < \frac{1}{2}$. According to linear stability theory \citep{Strogatz}, a fixed point $x_i^*(t)$ is locally stable if $\dfrac{\partial \dot{x}_i(t)}{\partial x_i(t)} < 0$. Consequently, maintaining an investment rate of $u_i^*(t) > \frac{1}{2}$ for each country $i \in \mathcal{N}$ serves as a necessary condition for the stability of national pollution stocks. In our numerical simulations, we track whether the converged investment rates $u_i^*(t)$ exceed this baseline threshold of $\frac{1}{2}$ to evaluate regional stability.
 
 Lastly, the convergence of players' strategy in imitation game can be discussed. In imitation game, strategy $u_i^*(t)$ is the stable fixed point if $u_i^*(t)=u_j^*(t)$ for each $j\in\mathcal{N}^i\backslash\{i\}$ \citep{Schuller}. Because of this, since each country is in the neighborhood of any other countries, an optimal strategy that becomes the stable fixed point exists. In other words, optimal investment by each country will converge to the same value.
 
@@ -511,41 +511,27 @@ In Figure \ref{fig:noncooperative_large_punishment}, the simulation with $\beta=
 
 \subsection{Imitation Simulation}
 
-In this section, we assume that the countries are imitating each other in deciding their investment rate. As stated by \citet{Schuller}, this behavior is interesting to be studied as an alternative for the noncooperative game. To reduce the pollution stock, enabling punishment is needed. On the other hand, it is unrealistic to hope the ASEAN countries can agree in such policy. By imitating others, each country still maintains their independence. To study the imitation behavior, we vary the initial phase of noncooperative game with short duration (4 months) and long duration (12 months) of the phase. We will also compare the results from when each country imitate other countries with and without any consideration of the neighbor country's successfulness.
+In this section, we assume that countries adopt imitation behavior when deciding their clean policy investment rates $u_i(t)$. As stated by \citet{Schuller}, investigating imitation behavior serves as an insightful alternative to noncooperative differential games. While reducing pollution stocks in a noncooperative setting requires enforcement or punishment mechanisms, it is unrealistic to hope the countries can agree in such policy. Imitation enables nations to coordinate while fully preserving their independence. To evaluate imitation dynamics, we vary the duration of the initial noncooperative phase using a short phase ($1$ month) and a long phase ($6$ months). Because noncooperative play requires time to reach equilibrium, these two durations establish distinct initial conditions for the subsequent imitation game. Under both phases, we compare unweighted imitation (basic imitation) against cost-weighted imitation (advanced imitation), where nations favor neighbors' success in achieving lower pollution costs.
 
 \begin{figure}[h]
-\centering
-\begin{subfigure}[b]{0.48\linewidth}
-    \includegraphics[width=\linewidth]{figures simulation/short basic.png}
-    \caption{}
-\end{subfigure}
-\hfill
-\begin{subfigure}[b]{0.48\linewidth}
-    \includegraphics[width=\linewidth]{figures simulation/short advanced.png}
-    \caption{}
-\end{subfigure}
-\caption{Imitation Game of ASEAN Countries with Short Initial Phase of Noncooperative Game: (a) Basic imitation; (b) Advanced imitation.}
-\label{fig:imitation short}
+    \centering
+    \includegraphics[width=\linewidth]{figures simulation/imitation_short_initial.png}
+
+    \caption{Imitation game with short initial phase of noncooperative game}
+    \label{fig:imitation short}
 \end{figure}
 
-In Figure \ref{fig:imitation short}, the simulation for short initial phase of noncooperative game is shown. With both imitation behavior, the pollution stock of each country can converge to 0 Mt in the long run. In less than 12 months, all countries' investment rate converge to 0.6 when behaving basic imitation. On the other hand, when following advanced imitation, the investment rate converge to a bigger value, 0.64, after 24 months. Convergence of stock pollution is reached in 80 months when basic imitation is used, whereas it is reached in 64 months when advanced imitation is used. It can be inferred that quicker convergence in advanced imitation happens because all countries act more environmentally friendly in the long run. Several countries, such as Vietnam, can also avoid a sharp increase of pollution stock by behaving advanced imitation. This sharp increase can be observed when the countries transition from noncooperative initial phase to the imitation behavior.
+Figure \ref{fig:imitation short} displays the simulation results following a short initial noncooperative phase. By the end of this brief initial phase, most countries still invest very little in clean policies. Under both imitation behaviors, the pollution stock of each country eventually blows up over time. This occurs because the investment rates under both rules converge to a single uniform value that fails to satisfy the necessary stability condition of $u_i > 0.5$. With basic imitation, the investment rate rapidly converges to $0.50$, whereas advanced imitation converges more slowly and settles at a lower value of approximately $0.46$. The fact that advanced imitation results in a lower long-run investment rate indicates a bias toward imitating nations with lower overall pollution costs. Countries with smaller initial pollution stocks, such as Timor-Leste, Brunei, and Myanmar, achieve lower total costs by spending less on clean policy investments ($\lambda u_i$). Advanced imitation recognizes these low-investment profiles as cost-effective, drawing the entire region toward a lower investment rate ($u \approx 0.46$) that remains below the necessary stability threshold.
 
 \begin{figure}[h]
-\centering
-\begin{subfigure}[b]{0.48\linewidth}
-    \includegraphics[width=\linewidth]{figures simulation/long basic.png}
-    \caption{}
-\end{subfigure}
-\hfill
-\begin{subfigure}[b]{0.48\linewidth}
-    \includegraphics[width=\linewidth]{figures simulation/long advanced.png}
-    \caption{}
-\end{subfigure}
-\caption{Imitation Game of ASEAN Countries with Long Initial Phase of Noncooperative Game: (a) Basic imitation; (b) Advanced imitation.}
-\label{fig:imitation long}
+    \centering
+    \includegraphics[width=\linewidth]{figures simulation/imitation_long_initial.png}
+
+    \caption{Imitation game with long initial phase of noncooperative game}
+    \label{fig:imitation long}
 \end{figure}
 
-In Figure \ref{fig:imitation long}, the simulation results for long duration of initial phase are shown. Similarly, each country's pollution stock can converge to 0 Mt. With basic imitation, each country's investment rate converge to 0.631 after 20 months. On other hand, with advanced imitation, the investment rate converge to slightly bigger value, 0.639, after 30 months. The pollution stock of each country converges in 74 months when basic imitation is used, while it converges in 70 months when advanced imitation is used. By the slight increase of investment rate convergence value, several countries can also avoid big increase of pollution stock. For example, Singapore has maximum value of pollution stock 694 Mt when behaving basic imitation, while it is 564 Mt when behaving advanced imitation.
+Figure \ref{fig:imitation long} presents the simulation results for a longer initial noncooperative phase ($6$ months). The longer duration allows countries to increase efforts in clean policies, establishing higher initial investment rates before imitation begins. Under basic imitation, the investment rates of all countries quickly converge to their regional average of approximately $0.70$. With an investment rate well above the necessary threshold of $0.5$, the pollution stock of each country successfully decays to 0 Mt within 5 years. Conversely, under advanced imitation, investment rates converge to a lower value of approximately $0.59$. Again, this reflects the regional tendency to copy lower-spending neighbors with smaller initial pollution stocks. Notably, although an investment rate of $0.60$ satisfies the necessary condition of $u > 0.5$, the pollution stock still blows up over time. This demonstrates that while $u_i > 0.5$ is a necessary condition for local stability in isolation, the presence of strong transboundary pollution transfer across the interconnected network creates a stricter demand, resulting in a uniform rate of $0.59$ insufficient to prevent regional pollution accumulation.
 
 \subsection{Cooperative Simulation}
 
@@ -553,8 +539,8 @@ Here we are interested to see what will happen if all Southeast Asian countries 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures simulation/coop.png}
-    \caption{Cooperative Game with Diplomatic Influence of ASEAN Countries as Countries' Relative Importance}
+    \includegraphics[width=\linewidth]{figures simulation/coop.png}
+    \caption{Cooperative game with diplomatic influence of Southeast Asian countries as its relative importance}
     \label{fig:cooperative}
 \end{figure}
 
@@ -573,11 +559,17 @@ It is also interesting observe the joint global cost that all countries pay thro
 
 \section{Conclusion}
 
-When behaving noncooperatively, pollution stock of each country converges to a single value. Without punishment, most countries' pollution stock increases until it reaches its equilibrium point 500 Mt after 33 months. In addition, after allowing punishment to countries' pollution flow, the pollution stock can be reduced significantly. For example, a small increase of the punishment rate ($\beta=2$) can reduce each country's pollution stock by half, 250 Mt, after 24 months.
+In this study, we analyzed the transboundary air pollution dynamics among Southeast Asian countries using a differential game framework integrated with a novel spatial-meteorological graph model. Our findings highlight how different behavioral assumptions shape regional environmental outcomes:
 
-To allow each country's independence, we let ASEAN countries to imitate each other. It is found that by any variety of imitation, each country's pollution stock can decrease to 0 Mt after a long period of time, which is 64--80 months. By comparing two different initial phase duration, the advanced imitation behavior ensures a quicker convergence of pollution stock. This happens because the investment rate of each country converges to a larger number. Aside from the quicker convergence time, this helps several countries to avoid sharp increases of their pollution stock. It can be concluded that the advanced imitation behavior is more robust in handling different initial phases. The imitation behavior is superior to the noncooperative by maintaining countries' independence, while ensuring that pollution stock of each country converges to 0 Mt after at least 64 months.
+When countries behave noncooperatively without external enforcement ($\beta=1$), individual pollution stocks converge to an equilibrium level of approximately $500\text{ Mt}$ after roughly $3$ years. Introducing external punishment on pollution flows ($\beta > 1$) significantly reduces environmental damage. For instance, even a modest punishment rate of $\beta=3$ reduces total regional pollution stock to one-third of its baseline without punishment within $24$ months.
 
-Lastly, we assume that all ASEAN countries can cooperate. The system stability is reached quicker by 70\% than the noncooperative behavior without punishment. The pollution stock of each country is ensured to be lower than the case of noncooperative game without punishment. Some country can even reduce their pollution stock by 50\% at some months. This implies that the cooperative game is a good alternative than the noncooperative game. Without setting punishment rate, ASEAN countries can still reach a better situation than the noncooperative game. Nonetheless, the cooperative game is still inferior to the imitation game which allows each country to reduce their pollution stock to 0 Mt.
+To allow each country's independence without relying on enforced punishment, we let Southeast Asian countries to imitate each other. The viability of the imitation game depends heavily on the initial noncooperative phase duration. A short initial phase traps nations into converging at insufficient investment rates, leading to runaway pollution accumulation. Conversely, an extended initial phase allows nations to establish higher initial investment rates before imitation begins. Under basic imitation, investment rates converge to the regional average, which is sufficient to ensure long-term stability and drive regional pollution stocks to 0 Mt over time (within 5 years). 
+
+In contrast, advanced imitation reveals a fundamental limitation in measuring policy success solely through total pollution costs. Because total costs are strongly influenced by a country's baseline pollution stock, smaller polluters hold an initial advantage, achieving low pollution costs primarily due to their small initial stocks rather than clean policy effort. Under advanced imitation, other nations mistake these low cost figures for strategic efficiency and imitate their lower investment rates, drawing regional investment effort below the necessary stability threshold. Consequently, unweighted basic imitation can prove superior to advanced imitation, as it prevents misleading cost signals caused by baseline size disparities from undermining regional environmental efforts.
+
+When countries act cooperatively by minimizing joint global costs, system stability is reached $70\%$ faster than under unpunished noncooperative play. Cooperative play guarantees lower pollution stocks across all countries relative to the unpunished noncooperative baseline. Some nations could even achieve up to a $50\%$ reduction during peak months without requiring external penalty mechanisms. Nevertheless, under favorable initial conditions, voluntary imitation still gives a unique advantage by enabling complete pollution stock decay to 0 Mt.
+
+This work establishes a quantitative foundation for designing regional environmental policy in Southeast Asia. Future extensions should incorporate explicit modeling of seasonal wildfire smoke and biomass burning, which are the primary drivers of severe transboundary haze across Southeast Asia.
 
 \printcredits
 \bibliographystyle{model1-num-names}
@@ -586,14 +578,6 @@ Lastly, we assume that all ASEAN countries can cooperate. The system stability i
 
 %% Appendices
 \appendix
-
-\section{Visualization of Monthly Average Wind Vector} \label{appendix:wind vector}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.9\linewidth]{figures/wind_vector.png}
-    \caption*{}
-    \label{fig:wind vector}
-\end{figure}
 
 \section{The Value of Transferred Pollution Rate} \label{appendix:pollution rate}
 
@@ -950,5 +934,13 @@ Let the value in row $i$ and column $j$ of matrix $\psi^t$ denotes the value of 
 \]
 
 \end{scriptsize}
+
+\section{Visualization of Monthly Average Wind Vector} \label{appendix:wind vector}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/wind_vector.png}
+    \caption{Monthly average wind for each country}
+    \label{fig:wind vector}
+\end{figure}
 
 \end{document}
